@@ -43,7 +43,8 @@ jobs:
       shell: bash
       run: |
         testExitCode=0
-        dotnet test --configuration Release --runtime ${{ matrix.targetPlatform }} --collect:"XPlat Code Coverage" --settings Tests/Tests.runsettings --logger "trx;LogFileName=TestResults.xml" || testExitCode=$?
+        dotnet build Tests --configuration Release --runtime ${{ matrix.TargetPlatform }} --no-dependencies
+        dotnet test --configuration Release --runtime ${{ matrix.targetPlatform }} --no-build --collect:"XPlat Code Coverage" --settings Tests/Tests.runsettings --logger "trx;LogFileName=TestResults.xml" || testExitCode=$?
         echo "TEST_EXIT_CODE=$testExitCode" >> $GITHUB_ENV
         cp Tests/TestResults/*/coverage.info Tests/TestResults
         exit 0
