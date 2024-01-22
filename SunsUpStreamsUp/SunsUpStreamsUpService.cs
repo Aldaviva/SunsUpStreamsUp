@@ -11,8 +11,11 @@ public class SunsUpStreamsUpService(
     ILogger<SunsUpStreamsUpService> logger
 ): BackgroundService {
 
+    private readonly TimeZoneInfo timeZone = string.IsNullOrWhiteSpace(options.Value.timeZone) ? TimeZoneInfo.Local : TimeZoneInfo.FindSystemTimeZoneById(options.Value.timeZone);
+
     protected override async Task ExecuteAsync(CancellationToken cts) {
-        SolarStreamAction nextStreamAction = getNextStreamAction(timeProvider.GetLocalNow().DateTime);
+
+        SolarStreamAction nextStreamAction = getNextStreamAction(TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), timeZone));
 
         bool wasStreamActiveBeforeStartup = (await obs.GetStreamStatus()).OutputActive;
         logger.LogInformation("Stream is {runningState}", wasStreamActiveBeforeStartup ? "running" : "stopped");
@@ -23,7 +26,7 @@ public class SunsUpStreamsUpService(
 
         try {
             while (!cts.IsCancellationRequested) {
-                TimeSpan delay = nextStreamAction.time - timeProvider.GetLocalNow().DateTime;
+                TimeSpan delay = nextStreamAction.time - timeProvider.GetLocalNow();
 
                 logger.LogInformation(@"Waiting {delay:h\h\ mm\m} to {action} the stream at {time:h:mm tt}", delay, nextStreamAction.shouldStartStream ? "start" : "stop",
                     nextStreamAction.time);
@@ -37,20 +40,33 @@ public class SunsUpStreamsUpService(
         } catch (TaskCanceledException) { }
     }
 
-    internal SolarStreamAction getNextStreamAction(DateTime start) {
-        SolarTimes solarTimes        = new(start, options.Value.latitude, options.Value.longitude);
-        DateTime   dawn              = solarTimes.DawnCivil;
-        DateTime   dusk              = solarTimes.DuskCivil;
-        bool       dayHasDawnAndDusk = dawn != dusk && (dawn.AddDays(1) - dusk).abs() > TimeSpan.FromSeconds(1);
-
-        if (start < dawn && dayHasDawnAndDusk) { // sun has not risen yet today
-            return new SolarStreamAction(true, dawn);
-        } else if (start < dusk && dayHasDawnAndDusk) { // sun has risen but not set yet today
-            return new SolarStreamAction(false, dusk);
-        } else { // sun has already set today, so advance to tomorrow
-            DateTime nextDayMidnight = DateOnly.FromDateTime(start).AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Local);
-            return getNextStreamAction(nextDayMidnight);
+    internal SolarStreamAction getNextStreamAction(DateTimeOffset start) {
+        // SolarTimes are unzoned and relative to the local time at the geographic coordinates, not the computer's local time zone
+        SolarTimes     solarTimes        = new(start, options.Value.latitude, options.Value.longitude);
+        DateTimeOffset dawn              = solarTimes.DawnCivil.withZone(timeZone);
+        DateTimeOffset dusk              = solarTimes.DuskCivil.withZone(timeZone);
+        bool           dayHasDawnAndDusk = dawn != dusk && (dawn.AddDays(1) - dusk).abs() > TimeSpan.FromSeconds(1);
+        if (dayHasDawnAndDusk && dusk.Date > dawn.Date) {
+            dusk = new DateTime(dawn.dateOnly(), dusk.timeOnly()).withZone(timeZone);
         }
+
+        if (dayHasDawnAndDusk) {    // not polar day or night
+            if (dawn < dusk) {      // regular day
+                if (start < dawn) { // before sunrise
+                    return new SolarStreamAction(true, dawn);
+                } else if (start < dusk) { // during day
+                    return new SolarStreamAction(false, dusk);
+                }
+            } else {                // midnight sun
+                if (start < dusk) { // before early sunset
+                    return new SolarStreamAction(false, dusk);
+                } else if (start < dawn) { // during early darkness
+                    return new SolarStreamAction(true, dawn);
+                }
+            }
+        }
+
+        return getNextStreamAction(start.AddDays(1).toStartOfDay(timeZone));
     }
 
     internal Task startOrStopStream(bool startStream) => startStream ? obs.StartStream() : obs.StopStream();

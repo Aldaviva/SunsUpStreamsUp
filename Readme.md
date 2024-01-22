@@ -44,6 +44,7 @@
     |-|-|-|
     |`latitude`|[-90.0,90.0]|Decimal degrees of your location north (+) or south (-) of the equator, used to determine the local civil time of sunrise and sunset|
     |`longitude`|[-180.0,180.0]|Decimal degrees of your location east (+) or west (-) of the prime meridian, used to determine the local civil time of sunrise and sunset|
+    |`timeZone`|IANA or .NET zone ID|Time zone for your location, from [IANA/Olsen tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (`"America/Los_Angeles"`) or [Windows/ICU](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones?view=windows-11#time-zones) (`"Pacific Standard Time"`), or omit it to use the computer's local zone|
     |`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, or `"localhost"` if OBS and this program are both installed on the same computer|
     |`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to 4455|
     |`obsPassword`|string|OBS WebSocket server password you set or copied, or `""` if you disabled authentication|

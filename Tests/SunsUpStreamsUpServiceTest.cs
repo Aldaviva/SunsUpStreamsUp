@@ -11,47 +11,54 @@ namespace Tests;
 
 public class SunsUpStreamsUpServiceTest {
 
-    private readonly SunsUpStreamsUpService  service;
+    private static readonly TimeSpan TIME_TOLERANCE = TimeSpan.FromSeconds(1);
+
+    private          SunsUpStreamsUpService  service      = null!;
     private readonly IObsClient              obs          = A.Fake<IObsClient>();
     private readonly TimeProvider            timeProvider = A.Fake<TimeProvider>(fakeOptions => fakeOptions.Wrapping(TimeProvider.System));
     private readonly CancellationTokenSource cts          = new();
 
     private readonly Options options = new() {
         latitude  = 37.35489827122742,
-        longitude = -121.98216436081027
+        longitude = -121.98216436081027,
+        timeZone  = "America/Los_Angeles"
     };
 
     public SunsUpStreamsUpServiceTest() {
+        initService();
+    }
+
+    private void initService() {
         service = new SunsUpStreamsUpService(obs, timeProvider, new OptionsWrapper<Options>(options), new NullLogger<SunsUpStreamsUpService>());
     }
 
     [Fact]
     public void getNextStreamActionBeforeSunrise() {
-        DateTime start    = new(2024, 1, 21, 3, 26, 0);
-        DateTime expected = new(2024, 1, 21, 6, 50, 42);
+        DateTimeOffset start    = new(2024, 1, 21, 3, 26, 0, TimeSpan.FromHours(-8));
+        DateTimeOffset expected = new(2024, 1, 21, 6, 50, 42, TimeSpan.FromHours(-8));
 
         SolarStreamAction actual = service.getNextStreamAction(start);
         actual.shouldStartStream.Should().BeTrue();
-        actual.time.Should().BeCloseTo(expected, TimeSpan.FromMinutes(1));
+        actual.time.Should().BeCloseTo(expected, TIME_TOLERANCE);
     }
 
     [Fact]
     public void getNextStreamActionBetweenSunriseAndSunset() {
-        DateTime start    = new(2024, 1, 21, 12 + 2, 28, 0);
-        DateTime expected = new(2024, 1, 21, 12 + 5, 47, 23);
+        DateTimeOffset start    = new(2024, 1, 21, 12 + 2, 28, 0, TimeSpan.FromHours(-8));
+        DateTimeOffset expected = new(2024, 1, 21, 12 + 5, 47, 23, TimeSpan.FromHours(-8));
 
         SolarStreamAction actual = service.getNextStreamAction(start);
         actual.shouldStartStream.Should().BeFalse();
-        actual.time.Should().BeCloseTo(expected, TimeSpan.FromMinutes(1));
+        actual.time.Should().BeCloseTo(expected, TIME_TOLERANCE);
     }
 
     [Fact]
     public void getNextStreamActionAfterSunset() {
-        DateTime start    = new(2024, 1, 21, 12 + 11, 0, 0);
-        DateTime expected = new(2024, 1, 22, 6, 50, 0);
+        DateTimeOffset start    = new(2024, 1, 21, 12 + 11, 0, 0, TimeSpan.FromHours(-8));
+        DateTimeOffset expected = new(2024, 1, 22, 6, 50, 15, TimeSpan.FromHours(-8));
 
         SolarStreamAction actual = service.getNextStreamAction(start);
-        actual.time.Should().BeCloseTo(expected, TimeSpan.FromMinutes(1));
+        actual.time.Should().BeCloseTo(expected, TIME_TOLERANCE);
         actual.shouldStartStream.Should().BeTrue();
     }
 
@@ -60,11 +67,14 @@ public class SunsUpStreamsUpServiceTest {
         // Ny-Ålesund, Svalbard, Norway
         options.latitude  = 78.92;
         options.longitude = 11.93;
-        DateTime start    = new(2019, 6, 28, 12, 0, 0);
-        DateTime expected = new(2019, 9, 10, 15, 45, 3);
+        options.timeZone  = "Europe/Berlin";
+        initService();
+
+        DateTimeOffset start    = new(2019, 6, 28, 12, 0, 0, TimeSpan.FromHours(2));
+        DateTimeOffset expected = new(2019, 9, 11, 0, 15, 44, TimeSpan.FromHours(2));
 
         SolarStreamAction actual = service.getNextStreamAction(start);
-        actual.time.Should().BeCloseTo(expected, TimeSpan.FromMinutes(1));
+        actual.time.Should().BeCloseTo(expected, TIME_TOLERANCE);
         actual.shouldStartStream.Should().BeFalse();
     }
 
@@ -73,11 +83,14 @@ public class SunsUpStreamsUpServiceTest {
         // Ny-Ålesund, Svalbard, Norway
         options.latitude  = 78.92;
         options.longitude = 11.93;
-        DateTime start    = new(2024, 1, 21, 0, 0, 0);
-        DateTime expected = new(2024, 2, 2, 2, 46, 0);
+        options.timeZone  = "Europe/Berlin";
+        initService();
+
+        DateTimeOffset start    = new(2024, 1, 21, 0, 0, 0, TimeSpan.FromHours(1));
+        DateTimeOffset expected = new(2024, 2, 2, 12, 4, 5, TimeSpan.FromHours(1));
 
         SolarStreamAction actual = service.getNextStreamAction(start);
-        actual.time.Should().BeCloseTo(expected, TimeSpan.FromMinutes(1));
+        actual.time.Should().BeCloseTo(expected, TIME_TOLERANCE);
         actual.shouldStartStream.Should().BeTrue();
     }
 
@@ -132,7 +145,7 @@ public class SunsUpStreamsUpServiceTest {
 
         await service.StartAsync(cts.Token);
 
-        await Task.Delay(TimeSpan.FromSeconds(2));
+        await Task.Delay(TimeSpan.FromSeconds(3));
         await service.StopAsync(cts.Token);
 
         A.CallTo(() => obs.StartStream()).MustNotHaveHappened();
