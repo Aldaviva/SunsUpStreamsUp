@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunsUpStreamsUp", "SunsUpStreamsUp\SunsUpStreamsUp.csproj", "{401E27D5-E53B-4CE6-834C-EA7FFBB3B552}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{CBC3D0BD-7960-4550-9AEF-EAE0C3F55FC7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{401E27D5-E53B-4CE6-834C-EA7FFBB3B552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{401E27D5-E53B-4CE6-834C-EA7FFBB3B552}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{401E27D5-E53B-4CE6-834C-EA7FFBB3B552}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{401E27D5-E53B-4CE6-834C-EA7FFBB3B552}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBC3D0BD-7960-4550-9AEF-EAE0C3F55FC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBC3D0BD-7960-4550-9AEF-EAE0C3F55FC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBC3D0BD-7960-4550-9AEF-EAE0C3F55FC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBC3D0BD-7960-4550-9AEF-EAE0C3F55FC7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {16DDA5C9-0348-4399-AAE8-4965A5482D91}
+	EndGlobalSection
+EndGlobal
