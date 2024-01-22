@@ -15,12 +15,16 @@ jobs:
         include:
           - os: ubuntu-latest
             targetPlatform: linux-x64
+            skipTests: false
           - os: windows-latest
             targetPlatform: win-x64
+            skipTests: false
           - os: ubuntu-latest
             targetPlatform: osx-x64
+            skipTests: false
           - os: ubuntu-latest
             targetPlatform: osx-arm64
+            skipTests: true # can't run ARM64 executables on x64 Linux
 
     runs-on: ${{ matrix.os }}
 
@@ -30,6 +34,7 @@ jobs:
 
     - name: Initialize test reporting
       uses: testspace-com/setup-testspace@v1
+      if: ${{ !matrix.skipTests }}
       with:
         domain: ${{ github.repository_owner }}
 
@@ -41,6 +46,7 @@ jobs:
 
     - name: Test
       shell: bash
+      if: ${{ !matrix.skipTests }}
       run: |
         testExitCode=0
         dotnet build Tests --configuration Release --runtime ${{ matrix.TargetPlatform }} --no-dependencies
@@ -50,15 +56,18 @@ jobs:
         exit 0
 
     - name: Upload test report
+      if: ${{ !matrix.skipTests }}
       run: testspace Tests/TestResults/TestResults.xml
 
     - name: Upload coverage
       uses: coverallsapp/github-action@master
+      if: ${{ !matrix.skipTests }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: Tests/TestResults/coverage.info
 
     - name: Stop if tests failed
+      if: ${{ !matrix.skipTests }}
       run: exit ${{ env.TEST_EXIT_CODE }}
 
     - name: Publish
