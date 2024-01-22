@@ -34,7 +34,7 @@ jobs:
         domain: ${{ github.repository_owner }}
 
     - name: Restore
-      run: dotnet restore ${{ matrix.targetPlatform }} --locked-mode
+      run: dotnet restore --runtime ${{ matrix.targetPlatform }} --locked-mode --verbosity normal
 
     - name: Build
       run: dotnet build ${{ env.ProjectName }} --no-restore --configuration Release --runtime ${{ matrix.targetPlatform }} --no-self-contained
@@ -43,7 +43,7 @@ jobs:
       shell: bash
       run: |
         testExitCode=0
-        dotnet test --configuration Release --runtime ${{ matrix.targetPlatform }} --collect:"XPlat Code Coverage" --settings Tests/Tests.runsettings --logger "trx;LogFileName=TestResults.xml" || testExitCode=$?
+        dotnet test --configuration Release --runtime ${{ matrix.targetPlatform }} --no-restore --collect:"XPlat Code Coverage" --settings Tests/Tests.runsettings --logger "trx;LogFileName=TestResults.xml" || testExitCode=$?
         echo "TEST_EXIT_CODE=$testExitCode" >> $GITHUB_ENV
         cp Tests/TestResults/*/coverage.info Tests/TestResults
         exit 0
