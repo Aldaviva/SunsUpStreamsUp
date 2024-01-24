@@ -23,32 +23,42 @@
     - [Mac OS 12 or later, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
 ## Installation
-- Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
-- Extract all files from the ZIP file to a directory on your hard drive.
-- On Linux and Mac OS, enable the executable bit on the program in a terminal
+1. Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
+1. Extract all files from the ZIP file to a directory on your hard drive.
+1. On Linux and Mac OS, enable the executable bit on the program in a terminal
     ```sh
     chmod +x SunsUpStreamsUp
     ```
 
 ### Updating
-- Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
-- Extract the executable file (`SunsUpStreamsUp` or `SunsUpStreamsUp.exe`) from the ZIP file to the installation directory. Do not overwrite your existing `appsettings.json`.
+1. Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
+1. Extract the executable file (`SunsUpStreamsUp` or `SunsUpStreamsUp.exe`) from the ZIP file to the installation directory. Do not overwrite your existing `appsettings.json`.
 
 ## Configuration
 1. Launch OBS and go to Tools › WebSocket Server Settings.
 1. Ensure **Enable WebSocket Server** is checked.
 1. Set a password, or copy the generated password using Show Connect Info › Server Password › Copy.
 1. Press OK.
-1. In this program's installation directory, open `appsettings.json` in a text editor, and set the following properties.
-    |Name|Values|Description|
-    |-|-|-|
-    |`latitude`|[-90.0,90.0]|Decimal degrees of your location north (+) or south (-) of the equator, used to determine the local civil time of sunrise and sunset|
-    |`longitude`|[-180.0,180.0]|Decimal degrees of your location east (+) or west (-) of the prime meridian, used to determine the local civil time of sunrise and sunset|
-    |`timeZone`|IANA or .NET zone ID|Time zone for your location, from [IANA/Olsen tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (`"America/Los_Angeles"`) or [Windows/ICU](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones?view=windows-11#time-zones) (`"Pacific Standard Time"`), or omit it to use the computer's local zone|
-    |`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, or `"localhost"` if OBS and this program are both installed on the same computer|
-    |`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to 4455|
-    |`obsPassword`|string|OBS WebSocket server password you set or copied, or `""` if you disabled authentication|
-    |`Logging.LogLevel`|object|You may optionally [change the logging levels of this program](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line#configure-logging-without-code)|
+1. In this program's installation directory, open `appsettings.json` in a text editor, and set the following properties in the given sections.
+
+### `geography`
+|Name|Values|Description|
+|-|-|-|
+|`latitude`|[-90.0,90.0]|Decimal degrees of your location north (+) or south (-) of the equator, used to determine the local civil time of sunrise and sunset|
+|`longitude`|[-180.0,180.0]|Decimal degrees of your location east (+) or west (-) of the prime meridian, used to determine the local civil time of sunrise and sunset|
+|`timeZone`|IANA zone ID|Time zone for your location, from [IANA/Olsen tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (*e.g.* `"America/Los_Angeles"`), or omit this to use the computer's local zone|
+
+### `stream`
+|Name|Values|Description|
+|-|-|-|
+|`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, or `"localhost"` if OBS and this program are both installed on the same computer|
+|`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to `4455`|
+|`obsPassword`|string|OBS WebSocket server password you set or copied, or `""` if you disabled authentication|
+
+### `logging`
+|Name|Values|Description|
+|-|-|-|
+|`logLevel`|object|You may optionally [change the logging levels of this program](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line#configure-logging-without-code)|
 
 
 ## Running

@@ -1,46 +1,22 @@
-﻿using Microsoft.Extensions.Options;
-using OBSStudioClient.Enums;
+﻿using NodaTime;
 using SunsUpStreamsUp;
 using SunsUpStreamsUp.Facades;
-using System.Net.WebSockets;
-using Options = SunsUpStreamsUp.Options;
+using SunsUpStreamsUp.Logic;
+using SunsUpStreamsUp.Options;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+builder.Logging.AddConsole(options => options.FormatterName = MyConsoleFormatter.NAME).AddConsoleFormatter<MyConsoleFormatter, MyConsoleFormatter.MyConsoleOptions>(options => {
+    options.includeNamespaces = false;
+});
 builder.Services
-    .Configure<Options>(builder.Configuration)
-    .AddHostedService<Startup>()
-    .AddHostedService<SunsUpStreamsUpService>()
+    .Configure<StreamOptions>(builder.Configuration.GetSection("stream"))
+    .Configure<GeographicOptions>(builder.Configuration.GetSection("geography"))
+    .AddHostedService<StreamManager>()
+    .AddSingleton<SolarEventEmitter, SolarEventEmitterImpl>()
+    .AddHostedService(s => s.GetRequiredService<SolarEventEmitter>())
+    .AddSingleton<IClock>(SystemClock.Instance)
     .AddSingleton<IObsClient, ObsClientFacade>()
     .AddSingleton(TimeProvider.System);
-builder.Logging.AddSimpleConsole(options => options.TimestampFormat = "yyyy-MM-dd h:mm:ss tt: ");
 
 using IHost host = builder.Build();
 await host.RunAsync();
-
-internal class Startup(
-    IObsClient        obs,
-    IOptions<Options> options,
-    ILogger<Startup>  logger
-): IHostedService {
-
-    /// <exception cref="WebSocketException">if the connection or authentication fail</exception>
-    public async Task StartAsync(CancellationToken cancellationToken) {
-        TaskCompletionSource authenticated = new();
-        obs.PropertyChanged += (_, eventArgs) => {
-            if (eventArgs.PropertyName == nameof(IObsClient.ConnectionState) && obs.ConnectionState == ConnectionState.Connected) {
-                authenticated.SetResult();
-            }
-        };
-
-        logger.LogDebug("Connecting to OBS at ws://{host}:{port}", options.Value.obsHostname, options.Value.obsPort);
-        if (!await obs.ConnectAsync(true, options.Value.obsPassword, options.Value.obsHostname, options.Value.obsPort, EventSubscriptions.None)) {
-            throw new WebSocketException($"Failed to connect to OBS at {options.Value.obsHostname}:{options.Value.obsPort}");
-        }
-
-        await authenticated.Task.WaitAsync(cancellationToken);
-        logger.LogInformation("Connected to OBS");
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-}

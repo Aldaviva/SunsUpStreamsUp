@@ -1,15 +1,6 @@
-using FakeItEasy;
-using FluentAssertions;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
-using OBSStudioClient.Responses;
-using SunsUpStreamsUp;
-using SunsUpStreamsUp.Facades;
-using Options = SunsUpStreamsUp.Options;
+namespace Tests.Logic;
 
-namespace Tests;
-
-public class SunsUpStreamsUpServiceTest {
+/*public class SunsUpStreamsUpServiceTest {
 
     private static readonly TimeSpan TIME_TOLERANCE = TimeSpan.FromSeconds(1);
 
@@ -151,4 +142,4 @@ public class SunsUpStreamsUpServiceTest {
         A.CallTo(() => obs.StartStream()).MustNotHaveHappened();
     }
 
-}
+}*/

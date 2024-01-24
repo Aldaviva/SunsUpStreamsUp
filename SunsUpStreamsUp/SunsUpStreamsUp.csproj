@@ -13,12 +13,13 @@
         <Authors>Ben Hutchison</Authors>
         <Copyright>© 2024 $(Authors)</Copyright>
         <Company>$(Authors)</Company>
+        <NoWarn>CS8524</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+        <PackageReference Include="NodaTime" Version="3.1.10" />
         <PackageReference Include="OBSClient" Version="2.0.0" />
-        <PackageReference Include="SolarCalculator" Version="3.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,6 +33,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Tests" />
+        <InternalsVisibleTo Include="Performance" />
     </ItemGroup>
 
 </Project>

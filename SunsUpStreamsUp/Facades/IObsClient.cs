@@ -16,6 +16,18 @@ using Monitor = OBSStudioClient.Classes.Monitor;
 
 namespace SunsUpStreamsUp.Facades;
 
+/*
+ * How to generate this facade:
+ * 1. Copy the third-party source code for ObsClient.cs to a temporary file in this project
+ * 2. Extract an interface from ObsClient, which creates this IObsClient interface
+ * 3. Delete the temporary ObsClient.cs file
+ * 4. Create a ObsClientFacade subclass of ObsClient which implements the new IObsClient interface
+ * 5. Register ObsClientFacade in dependency injection context with IObsClient interface
+ * 6. Inject IObjsClient into dependent classes
+ *
+ * Note: in step 2, make sure you're extracting the interface from ObsClient instead of its ObsClientFacade subclass, otherwise documentation comments will not be copied to the interface.
+ */
+
 [GeneratedCode("OBSClient", "2.0.0")]
 public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
