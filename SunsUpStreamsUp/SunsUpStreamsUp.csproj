@@ -36,4 +36,10 @@
         <InternalsVisibleTo Include="Performance" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="SolCalc">
+        <HintPath>..\..\SolCalc\SolCalc\bin\Debug\netstandard2.0\SolCalc.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

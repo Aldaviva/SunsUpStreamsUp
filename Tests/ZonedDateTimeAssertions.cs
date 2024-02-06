@@ -68,7 +68,7 @@ public class ZonedDateTimeAssertions<TAssertions>(ZonedDateTime? subject) where 
             .ForCondition(Subject is not null)
             .FailWith(", but found <null>.")
             .Then
-            .ForCondition(difference.abs() <= precision)
+            .ForCondition(difference.Abs() <= precision)
             .FailWith(", but {0} was off by {1}.", Subject, difference)
             .Then
             .ClearExpectation();

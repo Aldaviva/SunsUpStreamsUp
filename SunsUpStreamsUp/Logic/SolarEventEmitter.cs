@@ -1,25 +1,21 @@
 ﻿using Microsoft.Extensions.Options;
 using NodaTime;
 using NodaTime.Extensions;
-using SunsUpStreamsUp.Math;
+using SolCalc;
+using SolCalc.Data;
 using SunsUpStreamsUp.Options;
 
 namespace SunsUpStreamsUp.Logic;
 
 public interface SolarEventEmitter: IHostedService, IDisposable {
 
-    event EventHandler<SolarElevationChange> solarElevationChanged;
+    event EventHandler<SunlightChange> solarElevationChanged;
+    event EventHandler<SunlightChange> waitingForSolarElevationChange;
 
-    Sunlight currentSunlight { get; }
+    SunlightLevel currentSunlight { get; }
+    SunlightLevel minimumSunlightLevel { get; }
 
 }
-
-public readonly record struct SolarElevationChange(
-    ZonedDateTime time,
-    Sunlight      oldSunlight,
-    Sunlight      newSunlight,
-    bool          isSunRising
-);
 
 public class SolarEventEmitterImpl(
     IClock                         unzonedClock,
@@ -30,56 +26,40 @@ public class SolarEventEmitterImpl(
 
     private readonly ZonedClock clock = unzonedClock.InZone((options.Value.timeZone is { } id ? DateTimeZoneProviders.Tzdb.GetZoneOrNull(id) : null) ?? DateTimeZoneProviders.Tzdb.GetSystemDefault());
 
-    public event EventHandler<SolarElevationChange>? solarElevationChanged;
+    public event EventHandler<SunlightChange>? solarElevationChanged;
+    public event EventHandler<SunlightChange>? waitingForSolarElevationChange;
 
-    public Sunlight currentSunlight => SunlightMath.getSunlightForTime(clock.GetCurrentZonedDateTime(), options.Value.latitude, options.Value.longitude);
+    public SunlightLevel currentSunlight => SunlightCalculator.GetSunlightAt(clock.GetCurrentZonedDateTime(), options.Value.latitude, options.Value.longitude);
+
+    public SunlightLevel minimumSunlightLevel => options.Value.minimumSunlightLevel ?? SunlightLevel.CivilTwilight;
 
     protected override async Task ExecuteAsync(CancellationToken cts) {
-        ZonedDateTime now              = clock.GetCurrentZonedDateTime();
-        Sunlight      previousSunlight = SunlightMath.getSunlightForTime(now, options.Value.latitude, options.Value.longitude);
+        ZonedDateTime now = clock.GetCurrentZonedDateTime();
 
         try {
-            foreach (SunlightChanged brightnessChange in getSunlightChangesForUnlimitedDays(now, cts)) {
+            IEnumerable<SunlightChange> sunlightChanges = SunlightCalculator2.GetSunlightChanges(now, options.Value.latitude, options.Value.longitude)
+                .Where(change => (change.IsSunRising && change.NewSunlightLevel == minimumSunlightLevel) || (!change.IsSunRising && change.PreviousSunlightLevel == minimumSunlightLevel));
+
+            foreach (SunlightChange sunlightChange in sunlightChanges) {
                 cts.ThrowIfCancellationRequested();
 
-                Duration delay = brightnessChange.startTime - clock.GetCurrentZonedDateTime();
-                logger.LogDebug(@"Waiting {delay:h\h\ mm\m}, when {brightness} will start at {time:h:mm tt}", delay, brightnessChange.sunlightLevel.ToString(true), brightnessChange.startTime);
+                Duration delay = sunlightChange.Time - clock.GetCurrentZonedDateTime();
+                logger.LogDebug(@"Waiting {delay:h\h\ mm\m}, when {brightness} will start at {time:h:mm tt}", delay, sunlightChange.NewSunlightLevel.ToString(true), sunlightChange.Time);
+                waitingForSolarElevationChange?.Invoke(this, sunlightChange);
                 await LongDelay(delay, timeProvider, cts);
 
-                solarElevationChanged?.Invoke(this, new SolarElevationChange(brightnessChange.startTime, previousSunlight, brightnessChange.sunlightLevel, brightnessChange.isSunRising));
-
-                previousSunlight = brightnessChange.sunlightLevel;
+                solarElevationChanged?.Invoke(this, sunlightChange);
             }
         } catch (TaskCanceledException) { } catch (OperationCanceledException) { }
-    }
-
-    private IEnumerable<SunlightChanged> getSunlightChangesForUnlimitedDays(ZonedDateTime start, CancellationToken cts) {
-        LocalDate                    startDate              = start.Date;
-        decimal?                     previousSolarElevation = null;
-        IEnumerable<SunlightChanged> sunlightChanges        = getSunlightChangesForSingleDay().Where(c => c.startTime.ToInstant() > start.ToInstant());
-
-        while (!cts.IsCancellationRequested) {
-            foreach (SunlightChanged brightnessChange in sunlightChanges) {
-                cts.ThrowIfCancellationRequested();
-                yield return brightnessChange;
-                previousSolarElevation = brightnessChange.solarElevation;
-            }
-
-            startDate       = startDate.PlusDays(1);
-            sunlightChanges = getSunlightChangesForSingleDay();
-        }
-
-        IEnumerable<SunlightChanged> getSunlightChangesForSingleDay() =>
-            SunlightMath.getDailySunlightChanges(startDate, start.Zone, options.Value.latitude, options.Value.longitude, previousSolarElevation);
     }
 
     private static Task LongDelay(TimeSpan duration, TimeProvider? timeProvider = default, CancellationToken cancellationToken = default) {
         timeProvider ??= TimeProvider.System;
 
         // max duration of Task.Delay with .NET 6 and later
-        TimeSpan                maxShortDelay = TimeSpan.FromMilliseconds(uint.MaxValue - 1);
-        CancellationTokenSource testCts       = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        TimeSpan maxShortDelay = TimeSpan.FromMilliseconds(uint.MaxValue - 1);
         try {
+            CancellationTokenSource testCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             Task.Delay(maxShortDelay, timeProvider, testCts.Token);
             testCts.Cancel();
         } catch (ArgumentOutOfRangeException) {

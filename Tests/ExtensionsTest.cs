@@ -5,7 +5,7 @@ public class ExtensionsTest {
     [Theory]
     [MemberData(nameof(absTimespanData))]
     public void absTimespan(Duration input, Duration expected) {
-        input.abs().Should().Be(expected);
+        input.Abs().Should().Be(expected);
     }
 
     public static TheoryData<Duration, Duration> absTimespanData => new() {
