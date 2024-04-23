@@ -24,6 +24,8 @@ public class SolarEventEmitterImpl(
     ILogger<SolarEventEmitterImpl> logger
 ): BackgroundService, SolarEventEmitter {
 
+    private static readonly TimeSpan MAX_SHORT_DELAY;
+
     private readonly ZonedClock clock = unzonedClock.InZone((options.Value.timeZone is { } id ? DateTimeZoneProviders.Tzdb.GetZoneOrNull(id) : null) ?? DateTimeZoneProviders.Tzdb.GetSystemDefault());
 
     public event EventHandler<SunlightChange>? solarElevationChanged;
@@ -33,11 +35,22 @@ public class SolarEventEmitterImpl(
 
     public SunlightLevel minimumSunlightLevel => options.Value.minimumSunlightLevel ?? SunlightLevel.CivilTwilight;
 
-    protected override async Task ExecuteAsync(CancellationToken cts) {
-        ZonedDateTime now = clock.GetCurrentZonedDateTime();
-
+    static SolarEventEmitterImpl() {
+        // max duration of Task.Delay with .NET 6 and later
+        MAX_SHORT_DELAY = TimeSpan.FromMilliseconds(uint.MaxValue - 1);
         try {
-            IEnumerable<SunlightChange> sunlightChanges = SunlightCalculator2.GetSunlightChanges(now, options.Value.latitude, options.Value.longitude)
+            CancellationTokenSource testCts = new();
+            Task.Delay(MAX_SHORT_DELAY, testCts.Token);
+            testCts.Cancel();
+        } catch (ArgumentOutOfRangeException) {
+            // max duration of Task.Delay with .NET 5 and earlier
+            MAX_SHORT_DELAY = TimeSpan.FromMilliseconds(int.MaxValue);
+        }
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken cts) {
+        try {
+            IEnumerable<SunlightChange> sunlightChanges = SunlightCalculator.GetSunlightChanges(clock.GetCurrentZonedDateTime(), options.Value.latitude, options.Value.longitude)
                 .Where(change => (change.IsSunRising && change.NewSunlightLevel == minimumSunlightLevel) || (!change.IsSunRising && change.PreviousSunlightLevel == minimumSunlightLevel));
 
             foreach (SunlightChange sunlightChange in sunlightChanges) {
@@ -55,22 +68,10 @@ public class SolarEventEmitterImpl(
 
     private static Task LongDelay(TimeSpan duration, TimeProvider? timeProvider = default, CancellationToken cancellationToken = default) {
         timeProvider ??= TimeProvider.System;
-
-        // max duration of Task.Delay with .NET 6 and later
-        TimeSpan maxShortDelay = TimeSpan.FromMilliseconds(uint.MaxValue - 1);
-        try {
-            CancellationTokenSource testCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            Task.Delay(maxShortDelay, timeProvider, testCts.Token);
-            testCts.Cancel();
-        } catch (ArgumentOutOfRangeException) {
-            // .NET 5 and earlier
-            maxShortDelay = TimeSpan.FromMilliseconds(int.MaxValue);
-        }
-
         Task result = Task.CompletedTask;
 
-        for (TimeSpan remaining = duration; remaining > TimeSpan.Zero; remaining = remaining.Subtract(maxShortDelay)) {
-            TimeSpan shortDelay = remaining > maxShortDelay ? maxShortDelay : remaining;
+        for (TimeSpan remaining = duration; remaining > TimeSpan.Zero; remaining = remaining.Subtract(MAX_SHORT_DELAY)) {
+            TimeSpan shortDelay = remaining > MAX_SHORT_DELAY ? MAX_SHORT_DELAY : remaining;
             result = result.ContinueWith(_ => Task.Delay(shortDelay, timeProvider, cancellationToken), cancellationToken,
                 TaskContinuationOptions.LongRunning | TaskContinuationOptions.NotOnCanceled, TaskScheduler.Current).Unwrap();
         }

@@ -8,8 +8,8 @@ public class EnumTests {
 
     [Fact]
     public void solarElevationChangeEquality() {
-        SolarElevationChange a = new(new LocalDateTime(2024, 9, 9, 12 + 9, 13).InZoneStrictly(BERLIN), SunlightLevel.Daylight, SunlightLevel.CivilTwilight, false);
-        SolarElevationChange b = new(new LocalDateTime(2024, 9, 9, 12 + 9, 13).InZoneStrictly(BERLIN), SunlightLevel.Daylight, SunlightLevel.CivilTwilight, false);
+        SunlightChange a = new(new LocalDateTime(2024, 9, 9, 12 + 9, 13).InZoneStrictly(BERLIN), SolarTimeOfDay.Sunset);
+        SunlightChange b = new(new LocalDateTime(2024, 9, 9, 12 + 9, 13).InZoneStrictly(BERLIN), SolarTimeOfDay.Sunset);
 
         (a == b).Should().BeTrue();
         a.Should().Be(b);

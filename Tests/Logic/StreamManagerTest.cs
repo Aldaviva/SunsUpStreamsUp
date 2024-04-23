@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Options;
 using OBSStudioClient.Enums;
 using OBSStudioClient.Responses;
+using SolCalc.Data;
 using SunsUpStreamsUp.Facades;
 using SunsUpStreamsUp.Options;
 using System.ComponentModel;
-using System.Net.WebSockets;
 
 namespace Tests.Logic;
 
@@ -18,7 +18,7 @@ public class StreamManagerTest: IDisposable {
     private readonly CancellationTokenSource cts               = new();
 
     public StreamManagerTest() {
-        streamManager = new StreamManager(solarEventEmitter, obs, new OptionsWrapper<StreamOptions>(options), new NullLogger<StreamManager>());
+        streamManager = new StreamManager(solarEventEmitter, obs, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
 
         A.CallTo(() => obs.ConnectAsync(A<bool>._, A<string>._, A<string>._, An<int>._, An<EventSubscriptions>._))
             .Invokes(() => obs.PropertyChanged += Raise.FreeForm.With(obs, new PropertyChangedEventArgs("ConnectionState")))
@@ -26,7 +26,8 @@ public class StreamManagerTest: IDisposable {
 
         A.CallTo(() => obs.ConnectionState).Returns(ConnectionState.Connected);
 
-        A.CallTo(() => solarEventEmitter.currentSunlight).Returns(Sunlight.NIGHT);
+        A.CallTo(() => solarEventEmitter.minimumSunlightLevel).Returns(SunlightLevel.CivilTwilight);
+        A.CallTo(() => solarEventEmitter.currentSunlight).Returns(SunlightLevel.Night);
     }
 
     public void Dispose() {
@@ -47,13 +48,13 @@ public class StreamManagerTest: IDisposable {
         A.CallTo(() => obs.ConnectionState).Returns(ConnectionState.Disconnected);
 
         Func<Task> thrower = async () => await streamManager.StartAsync(cts.Token);
-        await thrower.Should().ThrowAsync<WebSocketException>();
+        await thrower.Should().ThrowAsync<ObsFailedToConnect>();
     }
 
     [Theory]
-    [InlineData(Sunlight.DAYLIGHT)]
-    [InlineData(Sunlight.CIVIL_TWILIGHT)]
-    public async Task startStreamOnLaunchIfDaylightAndStreamStopped(Sunlight lightLevel) {
+    [InlineData(SunlightLevel.Daylight)]
+    [InlineData(SunlightLevel.CivilTwilight)]
+    public async Task startStreamOnLaunchIfDaylightAndStreamStopped(SunlightLevel lightLevel) {
         A.CallTo(() => obs.GetStreamStatus()).Returns(new OutputStatusResponse(false, false, string.Empty, 0, 0, 0, 0, 0));
         A.CallTo(() => solarEventEmitter.currentSunlight).Returns(lightLevel);
 
@@ -63,9 +64,9 @@ public class StreamManagerTest: IDisposable {
     }
 
     [Theory]
-    [InlineData(Sunlight.DAYLIGHT)]
-    [InlineData(Sunlight.CIVIL_TWILIGHT)]
-    public async Task dontStartStreamOnLaunchIfStreamRunning(Sunlight lightLevel) {
+    [InlineData(SunlightLevel.Daylight)]
+    [InlineData(SunlightLevel.CivilTwilight)]
+    public async Task dontStartStreamOnLaunchIfStreamRunning(SunlightLevel lightLevel) {
         A.CallTo(() => obs.GetStreamStatus()).Returns(new OutputStatusResponse(true, false, string.Empty, 1, 0, 1, 0, 1));
         A.CallTo(() => solarEventEmitter.currentSunlight).Returns(lightLevel);
 
@@ -75,10 +76,10 @@ public class StreamManagerTest: IDisposable {
     }
 
     [Theory]
-    [InlineData(Sunlight.NAUTICAL_TWILIGHT)]
-    [InlineData(Sunlight.ASTRONOMICAL_TWILIGHT)]
-    [InlineData(Sunlight.NIGHT)]
-    public async Task dontStartStreamOnLaunchIfTooDark(Sunlight lightLevel) {
+    [InlineData(SunlightLevel.NauticalTwilight)]
+    [InlineData(SunlightLevel.AstronomicalTwilight)]
+    [InlineData(SunlightLevel.Night)]
+    public async Task dontStartStreamOnLaunchIfTooDark(SunlightLevel lightLevel) {
         A.CallTo(() => obs.GetStreamStatus()).Returns(new OutputStatusResponse(false, false, string.Empty, 0, 0, 0, 0, 0));
         A.CallTo(() => solarEventEmitter.currentSunlight).Returns(lightLevel);
 
@@ -93,7 +94,7 @@ public class StreamManagerTest: IDisposable {
 
         A.CallTo(() => obs.StartStream()).MustNotHaveHappened();
 
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.NAUTICAL_TWILIGHT, Sunlight.CIVIL_TWILIGHT, true));
+        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDawn));
 
         A.CallTo(() => obs.StartStream()).MustHaveHappenedOnceExactly();
     }
@@ -102,25 +103,9 @@ public class StreamManagerTest: IDisposable {
     public async Task stopStreamOnCivilDuskEnd() {
         await streamManager.StartAsync(cts.Token);
 
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.CIVIL_TWILIGHT, Sunlight.NAUTICAL_TWILIGHT, false));
+        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDusk));
 
         A.CallTo(() => obs.StopStream()).MustHaveHappenedOnceExactly();
-    }
-
-    [Fact]
-    public async Task dontModifyStreamOnOtherSolarElevationChanges() {
-        await streamManager.StartAsync(cts.Token);
-
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.NIGHT, Sunlight.ASTRONOMICAL_TWILIGHT, true));
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.ASTRONOMICAL_TWILIGHT, Sunlight.NAUTICAL_TWILIGHT, true));
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.CIVIL_TWILIGHT, Sunlight.DAYLIGHT, true));
-
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.DAYLIGHT, Sunlight.CIVIL_TWILIGHT, false));
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.NAUTICAL_TWILIGHT, Sunlight.ASTRONOMICAL_TWILIGHT, false));
-        solarEventEmitter.solarElevationChanged += Raise.With(new SolarElevationChange(default, Sunlight.ASTRONOMICAL_TWILIGHT, Sunlight.NIGHT, false));
-
-        A.CallTo(() => obs.StartStream()).MustNotHaveHappened();
-        A.CallTo(() => obs.StopStream()).MustNotHaveHappened();
     }
 
 }

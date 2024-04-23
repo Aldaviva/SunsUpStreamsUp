@@ -9,30 +9,29 @@ using System.ComponentModel;
 using System.Text.Json;
 using Monitor = OBSStudioClient.Classes.Monitor;
 
-// ReSharper disable CommentTypo
-// ReSharper disable UnusedMember.Global
-// ReSharper disable EventNeverSubscribedTo.Global
-// ReSharper disable InconsistentNaming
-
 namespace SunsUpStreamsUp.Facades;
 
 /*
  * How to generate this facade:
- * 1. Copy the third-party source code for ObsClient.cs to a temporary file in this project
+ * 1. Copy the third-party source code for decompiled ObsClient.cs to a temporary file in this project
  * 2. Extract an interface from ObsClient, which creates this IObsClient interface
- * 3. Delete the temporary ObsClient.cs file
- * 4. Create a ObsClientFacade subclass of ObsClient which implements the new IObsClient interface
- * 5. Register ObsClientFacade in dependency injection context with IObsClient interface
- * 6. Inject IObjsClient into dependent classes
+ * 3. Add the <inheritdoc>, [GeneratedCode], INotifyPropertyChanged, and IDisposable to this interface
+ * 4. Delete the temporary ObsClient.cs file
+ * 5. Create a ObsClientFacade subclass of ObsClient which implements the new IObsClient interface
+ * 6. Register ObsClientFacade in dependency injection context with IObsClient interface
+ * 7. Inject IObjsClient into dependent classes
  *
  * Note: in step 2, make sure you're extracting the interface from ObsClient instead of its ObsClientFacade subclass, otherwise documentation comments will not be copied to the interface.
+ *
+ * If you want to tell which methods changed between versions, Telerik JustAssembly (free) is useful: https://www.telerik.com/justassembly
  */
 
-[GeneratedCode("OBSClient", "2.0.0")]
+/// <inheritdoc cref="ObsClient"/>
+[GeneratedCode("OBSClient", "2.1.1")]
 public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>
-    /// Gets or sets the maximum amount of time, in milliseconds, the <see cref="OBSStudioClient.ObsClient" /> to wait for an OBS Studio response after making a request.
+    /// Gets or sets the maximum amount of time, in milliseconds, the <see cref="T:OBSStudioClient.ObsClient" /> to wait for an OBS Studio response after making a request.
     /// </summary>
     /// <remarks>
     /// The minimum value is 150. Please take into account that when sending Batch Requests, specifically with long Sleep requests, this default value of 500 might not be enough.
@@ -44,12 +43,12 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// Gets the current state of the connection to OBS Studio.
     /// </summary>
     /// <remarks>
-    /// You should only call ConnectAsync when this state is <see cref="OBSStudioClient.Enums.ConnectionState.Disconnected" />.
+    /// You should only call ConnectAsync when this state is <see cref="F:OBSStudioClient.Enums.ConnectionState.Disconnected" />.
     /// </remarks>
     ConnectionState ConnectionState { get; }
 
     /// <summary>
-    /// Gets or sets the value that indicates whether the <see cref="ObsClient" /> should automatically try to reconnect to OBS Studio.
+    /// Gets or sets the value that indicates whether the <see cref="T:OBSStudioClient.ObsClient" /> should automatically try to reconnect to OBS Studio.
     /// </summary>
     /// <remarks>
     /// When the value is True, the client will automatically try to reconnect to OBS Studio when:
@@ -57,8 +56,8 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// - You were kicked
     /// - OBS Studio closed
     /// - You sent an invalid message or your password was incorrect.
-    /// When you call <see cref="ObsClient.Disconnect" />, this setting is automatically set to False."/&gt;
-    /// Setting it back to True, after calling <see cref="ObsClient.Disconnect" />, will automatically try to reconnect.
+    /// When you call <see cref="M:OBSStudioClient.ObsClient.Disconnect" />, this setting is automatically set to False."/&gt;
+    /// Setting it back to True, after calling <see cref="M:OBSStudioClient.ObsClient.Disconnect" />, will automatically try to reconnect.
     /// </remarks>
     bool AutoReconnect { get; set; }
 
@@ -69,7 +68,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     long TotalBytesSent { get; }
 
     /// <summary>
-    /// Gets the total number of bytes received from OBS Studio throughout the lifetime of the <see cref="ObsClient" />.
+    /// Gets the total number of bytes received from OBS Studio throughout the lifetime of the <see cref="T:OBSStudioClient.ObsClient" />.
     /// </summary>
     /// <remarks>
     /// You will not be notified through the PropertyChanged event when this value changes.
@@ -77,7 +76,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     long TotalBytesReceived { get; }
 
     /// <summary>
-    /// Gets the total number of messages sent to OBS Studio throughout the lifetime of the <see cref="ObsClient" />.
+    /// Gets the total number of messages sent to OBS Studio throughout the lifetime of the <see cref="T:OBSStudioClient.ObsClient" />.
     /// </summary>
     /// <remarks>
     /// You will not be notified through the PropertyChanged event when this value changes.
@@ -85,7 +84,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     int TotalMessagesSent { get; }
 
     /// <summary>
-    /// Gets the total number of messages received from OBS Studio throughout the lifetime of the <see cref="ObsClient" />.
+    /// Gets the total number of messages received from OBS Studio throughout the lifetime of the <see cref="T:OBSStudioClient.ObsClient" />.
     /// </summary>
     /// <remarks>
     /// You will not be notified through the PropertyChanged event when this value changes.
@@ -123,6 +122,19 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     int SessionMessagesReceived { get; }
 
     /// <summary>
+    /// Gets or sets the maximum number of times the <see cref="T:OBSStudioClient.ObsClient" /> should retry a request when OBS Studio is not ready to perform the request.
+    /// </summary>
+    /// <remarks>
+    /// This typically occurs when OBS Studio is not ready to perform the request, e.g. when it is still starting up. It will authenticate the client, but not yet accept requests.
+    /// </remarks>
+    int MaxRequestRetries { get; set; }
+
+    /// <summary>
+    /// Gets or sets the interval, in milliseconds, the <see cref="T:OBSStudioClient.ObsClient" /> should wait before retrying a request when OBS Studio is not ready to perform the request.
+    /// </summary>
+    int RequestRetryInterval { get; set; }
+
+    /// <summary>
     /// Asynchronous event, triggered when the connection with OBS Studio is closed.
     /// </summary>
     event EventHandler<ConnectionClosedEventArgs>? ConnectionClosed;
@@ -138,27 +150,20 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <returns>True, when the connection was succesfully established, and False otherwise.</returns>
     /// <remarks>
     /// When True is returned, this does not mean that authentication has succeeded. Authentication will be handled asynchronously.
-    /// You can use the <see cref="ObsClient.PropertyChanged" /> event to see whether the <see cref="ObsClient.ConnectionState" /> is Connected, which indicates succesfull authenticaiton.
+    /// You can use the <see cref="E:OBSStudioClient.ObsClient.PropertyChanged" /> event to see whether the <see cref="P:OBSStudioClient.ObsClient.ConnectionState" /> is Connected, which indicates succesfull authenticaiton.
     /// When the client is already connected, disconnect first.
     /// </remarks>
-    Task<bool> ConnectAsync(
-        bool               autoReconnect     = false,
-        string             password          = "",
-        string             hostname          = "localhost",
-        int                port              = 4455,
-        EventSubscriptions eventSubscription = EventSubscriptions.All);
+    Task<bool> ConnectAsync(bool autoReconnect = false, string password = "", string hostname = "localhost", int port = 4455, EventSubscriptions eventSubscription = EventSubscriptions.All);
 
     /// <summary>Closes the connection to OBS Studio.</summary>
     void Disconnect();
 
     /// <summary>Sends a Batch Request.</summary>
-    /// <param name="requestBatchMessage">The <see cref="OBSStudioClient.Messages.RequestBatchMessage" /> to send.</param>
-    /// <param name="timeOutInMilliseconds">The timeout for the request. (Defauls to <see cref="ObsClient.RequestTimeout" />.)</param>
+    /// <param name="requestBatchMessage">The <see cref="T:OBSStudioClient.Messages.RequestBatchMessage" /> to send.</param>
+    /// <param name="timeOutInMilliseconds">The timeout for the request. (Defauls to <see cref="P:OBSStudioClient.ObsClient.RequestTimeout" />.)</param>
     /// <returns>The responses for the individual requests.</returns>
     /// <remarks>Since batch requests typically take more time than individual request, you have the opportunity here to override the default timeout for this specific call.</remarks>
-    Task<RequestResponseMessage[]> SendRequestBatchAsync(
-        RequestBatchMessage requestBatchMessage,
-        int?                timeOutInMilliseconds = null);
+    Task<RequestResponseMessage[]> SendRequestBatchAsync(RequestBatchMessage requestBatchMessage, int? timeOutInMilliseconds = null);
 
     /// <summary>
     /// Sends a Reidentify request to OBS Studio, typically to subscribe to a different set of events.
@@ -184,7 +189,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     Task SetPersistentData(Realm realm, string slotName, object slotValue);
 
     /// <summary>Gets an array of all scene collections</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.SceneCollectionListResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.SceneCollectionListResponse" /></returns>
     Task<SceneCollectionListResponse> GetSceneCollectionList();
 
     /// <summary>Switches to a scene collection.</summary>
@@ -204,7 +209,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     Task CreateSceneCollection(string sceneCollectionName);
 
     /// <summary>Gets an array of all profiles</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.ProfileListResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.ProfileListResponse" /></returns>
     Task<ProfileListResponse> GetProfileList();
 
     /// <summary>Switches to a profile.</summary>
@@ -226,10 +231,8 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// </summary>
     /// <param name="parameterCategory">Category of the parameter to get</param>
     /// <param name="parameterName">Name of the parameter to get</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.ProfileParameterResponse" /></returns>
-    Task<ProfileParameterResponse> GetProfileParameter(
-        string parameterCategory,
-        string parameterName);
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.ProfileParameterResponse" /></returns>
+    Task<ProfileParameterResponse> GetProfileParameter(string parameterCategory, string parameterName);
 
     /// <summary>
     /// Sets the value of a parameter in the current profile's configuration.
@@ -237,13 +240,10 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="parameterCategory">Category of the parameter to set</param>
     /// <param name="parameterName">Name of the parameter to set</param>
     /// <param name="parameterValue">Value of the parameter to set. Use null to delete</param>
-    Task SetProfileParameter(
-        string  parameterCategory,
-        string  parameterName,
-        string? parameterValue);
+    Task SetProfileParameter(string parameterCategory, string parameterName, string? parameterValue);
 
     /// <summary>Gets the current video settings.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.VideoSettingsResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.VideoSettingsResponse" /></returns>
     Task<VideoSettingsResponse> GetVideoSettings();
 
     /// <summary>Sets the current video settings.</summary>
@@ -253,18 +253,12 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="baseHeight">Height of the base (canvas) resolution in pixels.</param>
     /// <param name="outputWidth">Width of the output resolution in pixels.</param>
     /// <param name="outputHeight">Height of the output resolution in pixels.</param>
-    Task SetVideoSettings(
-        float? fpsNumerator,
-        float? fpsDenominator,
-        int?   baseWidth,
-        int?   baseHeight,
-        int?   outputWidth,
-        int?   outputHeight);
+    Task SetVideoSettings(float? fpsNumerator, float? fpsDenominator, int? baseWidth, int? baseHeight, int? outputWidth, int? outputHeight);
 
     /// <summary>
     /// Gets the current stream service settings (stream destination).
     /// </summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.StreamServiceSettingsResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.StreamServiceSettingsResponse" /></returns>
     Task<StreamServiceSettingsResponse> GetStreamServiceSettings();
 
     /// <summary>
@@ -275,9 +269,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <remarks>
     /// Note: Simple RTMP settings can be set with type rtmp_custom and the settings fields server and key.
     /// </remarks>
-    Task SetStreamServiceSettings(
-        string streamServiceType,
-        object streamServiceSettings);
+    Task SetStreamServiceSettings(string streamServiceType, object streamServiceSettings);
 
     /// <summary>
     /// Gets the current directory that the record output is set to.
@@ -295,7 +287,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     event EventHandler<VendorEventEventArgs>? VendorEvent;
 
     /// <summary>
-    /// Occurs when a custom event emitted by <see cref="ObsClient.BroadcastCustomEvent(System.Text.Json.JsonElement)" />.
+    /// Occurs when a custom event emitted by <see cref="M:OBSStudioClient.ObsClient.BroadcastCustomEvent(System.Text.Json.JsonElement)" />.
     /// </summary>
     event EventHandler<CustomEventEventArgs>? CustomEvent;
 
@@ -502,7 +494,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets an array of all of a source's filters.</summary>
     /// <param name="sourceName">Name of the source</param>
-    /// <returns>Array of <see cref="OBSStudioClient.Classes.Filter" /></returns>
+    /// <returns>Array of <see cref="T:OBSStudioClient.Classes.Filter" /></returns>
     Task<Filter[]> GetSourceFilterList(string sourceName);
 
     /// <summary>Gets the default settings for a filter kind.</summary>
@@ -517,11 +509,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="filterName">Name of the new filter to be created</param>
     /// <param name="filterKind">The kind of filter to be created</param>
     /// <param name="filterSettings">Settings object to initialize the filter with</param>
-    Task CreateSourceFilter(
-        string                      sourceName,
-        string                      filterName,
-        string                      filterKind,
-        Dictionary<string, object>? filterSettings);
+    Task CreateSourceFilter(string sourceName, string filterName, string filterKind, Dictionary<string, object>? filterSettings);
 
     /// <summary>Removes a filter from a source.</summary>
     /// <param name="sourceName">Name of the source the filter is on</param>
@@ -532,15 +520,12 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="sourceName">Name of the source the filter is on</param>
     /// <param name="filterName">Current name of the filter</param>
     /// <param name="newFilterName">New name for the filter</param>
-    Task SetSourceFilterName(
-        string sourceName,
-        string filterName,
-        string newFilterName);
+    Task SetSourceFilterName(string sourceName, string filterName, string newFilterName);
 
     /// <summary>Gets the info for a specific source filter.</summary>
     /// <param name="sourceName">Name of the source</param>
     /// <param name="filterName">Name of the filter</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.SourceFilterResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.SourceFilterResponse" /></returns>
     Task<SourceFilterResponse> GetSourceFilter(string sourceName, string filterName);
 
     /// <summary>Sets the index position of a filter on a source.</summary>
@@ -554,29 +539,22 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="filterName">Name of the filter to set the settings of</param>
     /// <param name="filterSettings">Object of settings to apply</param>
     /// <param name="overlay">True == apply the settings on top of existing ones, False == reset the input to its defaults, then apply settings.</param>
-    Task SetSourceFilterSettings(
-        string                     sourceName,
-        string                     filterName,
-        Dictionary<string, object> filterSettings,
-        bool                       overlay = true);
+    Task SetSourceFilterSettings(string sourceName, string filterName, Dictionary<string, object> filterSettings, bool overlay = true);
 
     /// <summary>Sets the enable state of a source filter.</summary>
     /// <param name="sourceName">Name of the source the filter is on</param>
     /// <param name="filterName">Name of the filter</param>
     /// <param name="filterEnabled">New enable state of the filter</param>
-    Task SetSourceFilterEnabled(
-        string sourceName,
-        string filterName,
-        bool   filterEnabled);
+    Task SetSourceFilterEnabled(string sourceName, string filterName, bool filterEnabled);
 
     /// <summary>Gets data about the current plugin and RPC version.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.VersionResponse" /> object with OBS Studio Version information.</returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.VersionResponse" /> object with OBS Studio Version information.</returns>
     Task<VersionResponse> GetVersion();
 
     /// <summary>
     /// Gets statistics about OBS, obs-websocket, and the current session.
     /// </summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.StatsResponse" /> object with OBS Studio Statistics.</returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.StatsResponse" /> object with OBS Studio Statistics.</returns>
     Task<StatsResponse> GetStats();
 
     /// <summary>
@@ -589,17 +567,14 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="vendorName">Name of the vendor to use</param>
     /// <param name="requestType">The request type to call</param>
     /// <param name="requestData">Object containing appropriate request data</param>
-    Task<CallVendorResponse> CallVendorRequest(
-        string       vendorName,
-        string       requestType,
-        JsonElement? requestData);
+    Task<CallVendorResponse> CallVendorRequest(string vendorName, string requestType, JsonElement? requestData);
 
     /// <summary>Gets an array of all hotkey names in OBS</summary>
     /// <returns>Array of hotkey names</returns>
     Task<string[]> GetHotkeyList();
 
     /// <summary>
-    /// Triggers a hotkey using its name. See <see cref="ObsClient.GetHotkeyList" />
+    /// Triggers a hotkey using its name. See <see cref="M:OBSStudioClient.ObsClient.GetHotkeyList" />
     /// </summary>
     /// <param name="hotkeyName">Name of the hotkey to trigger</param>
     Task TriggerHotkeyByName(string hotkeyName);
@@ -611,7 +586,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets an array of all inputs in OBS.</summary>
     /// <param name="inputKind">Restrict the array to only inputs of the specified kind</param>
-    /// <returns>An array of <see cref="OBSStudioClient.Messages.Input" /></returns>
+    /// <returns>An array of <see cref="T:OBSStudioClient.Messages.Input" /></returns>
     Task<Input[]> GetInputList(string? inputKind = null);
 
     /// <summary>Gets an array of all available input kinds in OBS.</summary>
@@ -620,7 +595,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     Task<string[]> GetInputKindList(bool unversioned = false);
 
     /// <summary>Gets the names of all special inputs.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.SpecialInputsResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.SpecialInputsResponse" /></returns>
     Task<SpecialInputsResponse> GetSpecialInputs();
 
     /// <summary>
@@ -632,12 +607,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="inputSettings">Settings object to initialize the input with</param>
     /// <param name="sceneItemEnabled">Whether to set the created scene item to enabled or disabled</param>
     /// <returns>ID of the newly created scene item</returns>
-    Task<int> CreateInput(
-        string sceneName,
-        string inputName,
-        string inputKind,
-        Input? inputSettings,
-        bool   sceneItemEnabled = true);
+    Task<int> CreateInput(string sceneName, string inputName, string inputKind, Input? inputSettings, bool sceneItemEnabled = true);
 
     /// <summary>Removes an existing input.</summary>
     /// <param name="inputName">Name of the input to remove</param>
@@ -658,7 +628,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets the settings of an input.</summary>
     /// <param name="inputName">Name of the input to get the settings of</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.InputSettingsResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.InputSettingsResponse" /></returns>
     /// <remarks>
     /// Note: Does not include defaults. To create the entire settings object, overlay inputSettings over the defaultInputSettings provided by GetInputDefaultSettings.
     /// </remarks>
@@ -668,10 +638,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="inputName">Name of the input to set the settings of</param>
     /// <param name="inputSettings">Object of settings to apply</param>
     /// <param name="overlay">True == apply the settings on top of existing ones, False == reset the input to its defaults, then apply settings.</param>
-    Task SetInputSettings(
-        string                     inputName,
-        Dictionary<string, object> inputSettings,
-        bool                       overlay = true);
+    Task SetInputSettings(string inputName, Dictionary<string, object> inputSettings, bool overlay = true);
 
     /// <summary>Gets the audio mute state of an input.</summary>
     /// <param name="inputName">Name of input to get the mute state of</param>
@@ -690,7 +657,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets the current volume setting of an input.</summary>
     /// <param name="inputName">Name of the input to get the volume of</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.InputVolumeResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.InputVolumeResponse" /></returns>
     Task<InputVolumeResponse> GetInputVolume(string inputName);
 
     /// <summary>Sets the volume setting of an input.</summary>
@@ -755,9 +722,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <remarks>
     /// Note: Use this in cases where an input provides a dynamic, selectable list of items. For example, display capture, where it provides a list of available displays.
     /// </remarks>
-    Task<PropertyItem[]> GetInputPropertiesListPropertyItems(
-        string inputName,
-        string propertyName);
+    Task<PropertyItem[]> GetInputPropertiesListPropertyItems(string inputName, string propertyName);
 
     /// <summary>Presses a button in the properties of an input.</summary>
     /// <param name="inputName">Name of the input</param>
@@ -769,7 +734,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets the status of a media input.</summary>
     /// <param name="inputName">Name of the media input</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.MediaInputStatusResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.MediaInputStatusResponse" /></returns>
     Task<MediaInputStatusResponse> GetMediaInputStatus(string inputName);
 
     /// <summary>Sets the cursor position of a media input.</summary>
@@ -833,12 +798,12 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     Task<string> GetLastReplayBufferReplay();
 
     /// <summary>Gets the list of available outputs.</summary>
-    /// <returns>Array of <see cref="OBSStudioClient.Classes.Output" /></returns>
+    /// <returns>Array of <see cref="T:OBSStudioClient.Classes.Output" /></returns>
     Task<Output[]> GetOutputList();
 
     /// <summary>Gets the status of an output.</summary>
     /// <param name="outputName">Output name</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.OutputStatusResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.OutputStatusResponse" /></returns>
     Task<OutputStatusResponse> GetOutputStatus(string outputName);
 
     /// <summary>Toggles the status of an output.</summary>
@@ -856,18 +821,16 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets the settings of an output.</summary>
     /// <param name="outputName">Output name</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.OutputSettingsResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.OutputSettingsResponse" /></returns>
     Task<Dictionary<string, object>> GetOutputSettings(string outputName);
 
     /// <summary>Sets the settings of an output.</summary>
     /// <param name="outputName">Output name</param>
     /// <param name="outputSettings">Output settings</param>
-    Task SetOutputSettings(
-        string                     outputName,
-        Dictionary<string, object> outputSettings);
+    Task SetOutputSettings(string outputName, Dictionary<string, object> outputSettings);
 
     /// <summary>Gets the status of the record output.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.RecordStatusResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.RecordStatusResponse" /></returns>
     Task<RecordStatusResponse> GetRecordStatus();
 
     /// <summary>Toggles the status of the record output.</summary>
@@ -897,12 +860,12 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets a list of all scene items in a scene.</summary>
     /// <param name="sceneName">Name of the scene to get the items of</param>
-    /// <returns>Array of <see cref="OBSStudioClient.Classes.SceneItem" /> in the scene</returns>
+    /// <returns>Array of <see cref="T:OBSStudioClient.Classes.SceneItem" /> in the scene</returns>
     Task<SceneItem[]> GetSceneItemList(string sceneName);
 
     /// <summary>Basically GetSceneItemList, but for groups.</summary>
     /// <param name="sceneName">Name of the group to get the items of</param>
-    /// <returns>Array of <see cref="OBSStudioClient.Classes.SceneItem" /> in the group</returns>
+    /// <returns>Array of <see cref="T:OBSStudioClient.Classes.SceneItem" /> in the group</returns>
     /// <remarks>
     /// Using groups at all in OBS is discouraged, as they are very broken under the hood. Please use nested scenes instead.
     /// </remarks>
@@ -920,10 +883,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="sourceName">Name of the source to add to the scene</param>
     /// <param name="sceneItemEnabled">Enable state to apply to the scene item on creation</param>
     /// <returns>Numeric ID of the scene item</returns>
-    Task<int> CreateSceneItem(
-        string sceneName,
-        string sourceName,
-        bool   sceneItemEnabled = true);
+    Task<int> CreateSceneItem(string sceneName, string sourceName, bool sceneItemEnabled = true);
 
     /// <summary>Removes a scene item from a scene.</summary>
     /// <param name="sceneName">Name of the scene the item is in</param>
@@ -937,10 +897,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="sceneItemId">Numeric ID of the scene item (&gt;= 0)</param>
     /// <param name="destinationSceneName">Name of the scene to create the duplicated item in</param>
     /// <returns>Numeric ID of the duplicated scene item</returns>
-    Task<int> DuplicateSceneItem(
-        string  sceneName,
-        int     sceneItemId,
-        string? destinationSceneName = null);
+    Task<int> DuplicateSceneItem(string sceneName, int sceneItemId, string? destinationSceneName = null);
 
     /// <summary>Gets the transform and crop info of a scene item.</summary>
     /// <param name="sceneName">Name of the scene the item is in</param>
@@ -952,10 +909,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="sceneName">Name of the scene the item is in</param>
     /// <param name="sceneItemId">Numeric ID of the scene item (&gt;= 0)</param>
     /// <param name="sceneItemTransform">Object containing scene item transform info to update</param>
-    Task SetSceneItemTransform(
-        string             sceneName,
-        int                sceneItemId,
-        SceneItemTransform sceneItemTransform);
+    Task SetSceneItemTransform(string sceneName, int sceneItemId, SceneItemTransform sceneItemTransform);
 
     /// <summary>Gets the enable state of a scene item.</summary>
     /// <param name="sceneName">Name of the scene the item is in</param>
@@ -1007,13 +961,10 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="sceneName">Name of the scene the item is in</param>
     /// <param name="sceneItemId">Numeric ID of the scene item (&gt;= 0)</param>
     /// <param name="sceneItemBlendMode">New blend mode</param>
-    Task SetSceneItemBlendMode(
-        string    sceneName,
-        int       sceneItemId,
-        BlendMode sceneItemBlendMode);
+    Task SetSceneItemBlendMode(string sceneName, int sceneItemId, BlendMode sceneItemBlendMode);
 
     /// <summary>Gets an array of all scenes in OBS.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.SceneListResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.SceneListResponse" /></returns>
     Task<SceneListResponse> GetSceneList();
 
     /// <summary>Gets an array of all groups in OBS.</summary>
@@ -1054,21 +1005,18 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Gets the scene transition overridden for a scene.</summary>
     /// <param name="sceneName">Name of the scene</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.SceneTransitionResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.SceneTransitionResponse" /></returns>
     Task<SceneTransitionResponse> GetSceneSceneTransitionOverride(string sceneName);
 
     /// <summary>Gets the scene transition overridden for a scene.</summary>
     /// <param name="sceneName">Name of the scene</param>
     /// <param name="transitionName">Name of the scene transition to use as override. Specify null to remove.</param>
     /// <param name="transitionDuration">Duration to use for any overridden transition. Specify null to remove.</param>
-    Task SetSceneSceneTransitionOverride(
-        string  sceneName,
-        string? transitionName,
-        int?    transitionDuration);
+    Task SetSceneSceneTransitionOverride(string sceneName, string? transitionName, int? transitionDuration);
 
     /// <summary>Gets the active and show state of a source.</summary>
     /// <param name="sourceName">Name of the source to get the active state of</param>
-    /// <returns>A <see cref="OBSStudioClient.Responses.SourceActiveResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.SourceActiveResponse" /></returns>
     /// <remarks>Compatible with inputs and scenes.</remarks>
     Task<SourceActiveResponse> GetSourceActive(string sourceName);
 
@@ -1083,12 +1031,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// The imageWidth and imageHeight parameters are treated as "scale to inner", meaning the smallest ratio will be used and the aspect ratio of the original resolution is kept. If imageWidth and imageHeight are not specified, the compressed image will use the full resolution of the source.
     /// Compatible with inputs and scenes.
     /// </remarks>
-    Task<string> GetSourceScreenshot(
-        string sourceName,
-        string imageFormat,
-        int?   imageWidth              = null,
-        int?   imageHeight             = null,
-        int?   imageCompressionQuality = -1);
+    Task<string> GetSourceScreenshot(string sourceName, string imageFormat, int? imageWidth = null, int? imageHeight = null, int? imageCompressionQuality = -1);
 
     /// <summary>Saves a screenshot of a source to the filesystem.</summary>
     /// <param name="sourceName">Name of the source to take a screenshot of</param>
@@ -1097,21 +1040,14 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <param name="imageWidth">Width to scale the screenshot to (between 8 and 4096)</param>
     /// <param name="imageHeight">Height to scale the screenshot to (between 8 and 4096)</param>
     /// <param name="imageCompressionQuality">Compression quality to use. 0 for high compression, 100 for uncompressed. -1 to use "default" (whatever that means, idk) (between -1 and 100)</param>
-    /// <returns>Base64-encoded screenshot</returns>
     /// <remarks>
     /// The imageWidth and imageHeight parameters are treated as "scale to inner", meaning the smallest ratio will be used and the aspect ratio of the original resolution is kept. If imageWidth and imageHeight are not specified, the compressed image will use the full resolution of the source.
     /// Compatible with inputs and scenes.
     /// </remarks>
-    Task<string> SaveSourceScreenshot(
-        string sourceName,
-        string imageFormat,
-        string imageFilePath,
-        int?   imageWidth              = null,
-        int?   imageHeight             = null,
-        int?   imageCompressionQuality = -1);
+    Task SaveSourceScreenshot(string sourceName, string imageFormat, string imageFilePath, int? imageWidth = null, int? imageHeight = null, int? imageCompressionQuality = -1);
 
     /// <summary>Gets the status of the stream output.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.OutputStatusResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.OutputStatusResponse" /></returns>
     Task<OutputStatusResponse> GetStreamStatus();
 
     /// <summary>Toggles the status of the stream output.</summary>
@@ -1133,11 +1069,11 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     Task<string[]> GetTransitionKindList();
 
     /// <summary>Gets an array of all scene transitions in OBS.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.SceneTransitionListResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.SceneTransitionListResponse" /></returns>
     Task<SceneTransitionListResponse> GetSceneTransitionList();
 
     /// <summary>Gets information about the current scene transition.</summary>
-    /// <returns>A <see cref="OBSStudioClient.Responses.TransitionResponse" /></returns>
+    /// <returns>A <see cref="T:OBSStudioClient.Responses.TransitionResponse" /></returns>
     Task<TransitionResponse> GetCurrentSceneTransition();
 
     /// <summary>Sets the current scene transition.</summary>
@@ -1156,9 +1092,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
     /// <summary>Sets the settings of the current scene transition.</summary>
     /// <param name="transitionSettings">Settings object to apply to the transition. Can be {}</param>
     /// <param name="overlay">Whether to overlay over the current settings or replace them</param>
-    Task SetCurrentSceneTransitionSettings(
-        TransitionResponse? transitionSettings,
-        bool                overlay = true);
+    Task SetCurrentSceneTransitionSettings(TransitionResponse? transitionSettings, bool overlay = true);
 
     /// <summary>
     /// Gets the cursor position of the current scene transition.
@@ -1216,7 +1150,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Opens a projector for a specific output video mix.</summary>
     /// <param name="videoMixType">Type of mix to open</param>
-    /// <param name="projectorGeometry">Size/Position data for a windowed projector, in Qt Base64 encoded format.  See <see cref="ObsClient.GetGeometry(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Int32)" />.</param>
+    /// <param name="projectorGeometry">Size/Position data for a windowed projector, in Qt Base64 encoded format.  See <see cref="M:OBSStudioClient.ObsClient.GetGeometry(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Int32)" />.</param>
     /// <remarks>Note: This request serves to provide feature parity with 4.x. It is very likely to be changed/deprecated in a future release.</remarks>
     Task OpenVideoMixProjectorWindow(MixType videoMixType, string projectorGeometry);
 
@@ -1228,7 +1162,7 @@ public interface IObsClient: INotifyPropertyChanged, IDisposable {
 
     /// <summary>Opens a projector for a source.</summary>
     /// <param name="sourceName">Name of the source to open a projector for</param>
-    /// <param name="projectorGeometry">Size/Position data for a windowed projector, in Qt Base64 encoded format. See <see cref="ObsClient.GetGeometry(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Int32)" />.</param>
+    /// <param name="projectorGeometry">Size/Position data for a windowed projector, in Qt Base64 encoded format. See <see cref="M:OBSStudioClient.ObsClient.GetGeometry(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Int32)" />.</param>
     /// <remarks>Note: This request serves to provide feature parity with 4.x. It is very likely to be changed/deprecated in a future release.</remarks>
     Task OpenSourceProjectorWindow(string sourceName, string projectorGeometry);
 

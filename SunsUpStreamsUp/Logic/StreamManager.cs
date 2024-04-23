@@ -41,7 +41,11 @@ public class StreamManager(
         } catch (TaskCanceledException) { }
     }
 
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public Task StopAsync(CancellationToken cancellationToken) {
+        obs.Disconnect();
+        logger.LogInformation("Disconnected from OBS");
+        return Task.CompletedTask;
+    }
 
     private void onWaitForSolarElevationChange(object? sender, SunlightChange e) => logger.LogInformation(@"Waiting until {solarTime} to {action} the stream at {time:h:mm tt}, in {delay:h\h\ mm\m}",
         e.Name.ToString(true), e.IsSunRising ? "start" : "stop", e.Time, e.Time.ToInstant() - clock.GetCurrentInstant());

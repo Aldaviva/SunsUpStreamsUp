@@ -15,12 +15,12 @@
 <!-- /MarkdownTOC -->
 
 ## Prerequisites
-- [Open Broadcaster Software Studio 28 or later](https://obsproject.com/download)
-- [Microsoft .NET 8 Runtime x64 or later](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [Open Broadcaster Software Studio ≥ 28](https://obsproject.com/download)
+- [.NET ≥ 8 Runtime x64 or ARM64](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - Operating system
-    - [Linux x64 distribution and version supported by .NET 8](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 39)
-    - [Windows 10 or Server 2012 or later, x64](https://learn.microsoft.com/en-us/dotnet/core/install/windows)
-    - [Mac OS 12 or later, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
+    - [Linux x64 distribution and version supported by .NET Runtime](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 39)
+    - [Windows ≥ 10 or Server ≥ 2012, x64](https://learn.microsoft.com/en-us/dotnet/core/install/windows)
+    - [Mac OS ≥ 12, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
 ## Installation
 1. Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
@@ -32,7 +32,7 @@
 
 ### Updating
 1. Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
-1. Extract the executable file (`SunsUpStreamsUp` or `SunsUpStreamsUp.exe`) from the ZIP file to the installation directory. Do not overwrite your existing `appsettings.json`.
+1. Extract the executable file (`SunsUpStreamsUp` or `SunsUpStreamsUp.exe`) from the ZIP file to your installation directory. Do not overwrite your existing `appsettings.json`.
 
 ## Configuration
 1. Launch OBS and go to Tools › WebSocket Server Settings.
@@ -44,16 +44,17 @@
 ### `geography`
 |Name|Values|Description|
 |-|-|-|
-|`latitude`|[-90.0,90.0]|Decimal degrees of your location north (+) or south (-) of the equator, used to determine the local civil time of sunrise and sunset|
-|`longitude`|[-180.0,180.0]|Decimal degrees of your location east (+) or west (-) of the prime meridian, used to determine the local civil time of sunrise and sunset|
-|`timeZone`|IANA zone ID|Time zone for your location, from [IANA/Olsen tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (*e.g.* `"America/Los_Angeles"`), or omit this to use the computer's local zone|
+|`latitude`|[−90.0,90.0]|Decimal degrees of your location north (+) or south (−) of the equator, used to determine the local time of sunrise and sunset|
+|`longitude`|(−180.0,180.0]|Decimal degrees of your location east (+) or west (−) of the prime meridian, used to determine the local time of sunrise and sunset|
+|`timeZone`|IANA zone ID|Time zone for your location, from [IANA/Olson tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (*e.g.* `"America/Los_Angeles"`), or omit this to use the computer's local zone|
+|`minimumSunlightLevel`|[`SunlightLevel`](https://github.com/Aldaviva/SolCalc/blob/master/SolCalc/Data/SunlightLevel.cs)|Stream will be up whenever the sunlight is at least this bright; one of `Night` (always up), `AstronomicalTwilight`, `NauticalTwilight`, `CivilTwilight` (default), or `Daylight`. For example, if you set this to `CivilTwilight`, the stream will start at civil dawn and stop at civil dusk.|
 
 ### `stream`
 |Name|Values|Description|
 |-|-|-|
-|`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, or `"localhost"` if OBS and this program are both installed on the same computer|
+|`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, defaults to `"localhost"` for when OBS and this program are both installed on the same computer|
 |`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to `4455`|
-|`obsPassword`|string|OBS WebSocket server password you set or copied, or `""` if you disabled authentication|
+|`obsPassword`|string|OBS WebSocket server password you set or copied, not URL-encoded, defaults to `""` for if you disabled authentication|
 
 ### `logging`
 |Name|Values|Description|

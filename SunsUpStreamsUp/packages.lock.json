@@ -32,20 +32,20 @@
           "Microsoft.Extensions.Options": "8.0.0"
         }
       },
-      "NodaTime": {
-        "type": "Direct",
-        "requested": "[3.1.10, )",
-        "resolved": "3.1.10",
-        "contentHash": "56V8ELg9Az1S0Nij44xILAtfUQs3WTLIwbTQTuWZxL8EagsfUkkPAoWxv/HyZccmfaUEqFHfHiAuqfj/NfbfrA==",
-        "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "4.7.1"
-        }
-      },
       "OBSClient": {
         "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "Lo9/Wzej4M56Z9oP5scK9JtG5+02wBy6R4LRfzq3WI/cI4G55sSUTrT+RYCvFFDEXhmlPZy8+mlupEuDnJiWtA=="
+        "requested": "[2.1.1, )",
+        "resolved": "2.1.1",
+        "contentHash": "ozdgutUCuDVFi18DJkGndp7p+OODv51nnH8Kq4FEhNOVOWJHd/aWfgRo3hDQvN8ZJYiR1PliKfEyvRCqkuGUIQ=="
+      },
+      "SolCalc": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "NEYJgNi+yFq0nZlzcVMf8cS74aSNiuIh5Bzr/tbqrYgGUJ0uvhiw71xJU9kZsQQn5CA68c8A15wHI0t/e1Q75g==",
+        "dependencies": {
+          "NodaTime": "3.1.11"
+        }
       },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
@@ -299,6 +299,14 @@
         "type": "Transitive",
         "resolved": "8.0.0",
         "contentHash": "bXJEZrW9ny8vjMF1JV253WeLhpEVzFo1lyaZu1vQ4ZxWUlVvknZ/+ftFgVheLubb4eZPSwwxBeqS1JkCOjxd8g=="
+      },
+      "NodaTime": {
+        "type": "Transitive",
+        "resolved": "3.1.11",
+        "contentHash": "AYSiCHp1PLzWKVf7hEL3MJ0q9kzOWMNIaTVysXk4XKrDBzK5PF2wpd4LsAl+EIQ2Hbvu+vw4oFaexcXzCuY1lQ==",
+        "dependencies": {
+          "System.Runtime.CompilerServices.Unsafe": "4.7.1"
+        }
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",

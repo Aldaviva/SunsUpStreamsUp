@@ -1,5 +1,6 @@
 ﻿using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using SolCalc;
 
 #pragma warning disable CS0659, S1206 // Ignore not overriding Object.GetHashCode()
 
