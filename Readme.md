@@ -18,28 +18,28 @@
 - [Open Broadcaster Software Studio ≥ 28](https://obsproject.com/download)
 - [.NET ≥ 8 Runtime x64 or ARM64](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - Operating system
-    - [Linux x64 distribution and version supported by .NET Runtime](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 39)
+    - [Linux x64 distribution and version supported by .NET Runtime](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 40)
     - [Windows ≥ 10 or Server ≥ 2012, x64](https://learn.microsoft.com/en-us/dotnet/core/install/windows)
     - [Mac OS ≥ 12, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
 ## Installation
 1. Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
 1. Extract all files from the ZIP file to a directory on your hard drive.
-1. On Linux and Mac OS, enable the executable bit on the program in a terminal
+1. On Linux and Mac OS, enable the executable bit on the program in a terminal.
     ```sh
-    chmod +x SunsUpStreamsUp
+    chmod +x sunsupstreamsup
     ```
 
 ### Updating
 1. Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
-1. Extract the executable file (`SunsUpStreamsUp` or `SunsUpStreamsUp.exe`) from the ZIP file to your installation directory. Do not overwrite your existing `appsettings.json`.
+1. Extract the executable file (`sunsupstreamsup` or `sunsupstreamsup.exe`) from the ZIP file to your installation directory. Do not overwrite your existing `appsettings.json`.
 
 ## Configuration
-1. Launch OBS and go to Tools › WebSocket Server Settings.
+1. In the OBS menu bar, go to Tools › WebSocket Server Settings.
 1. Ensure **Enable WebSocket Server** is checked.
 1. Set a password, or copy the generated password using Show Connect Info › Server Password › Copy.
 1. Press OK.
-1. In this program's installation directory, open `appsettings.json` in a text editor, and set the following properties in the given sections.
+1. In this program's installation directory, open [`appsettings.json`](https://github.com/Aldaviva/SunsUpStreamsUp/blob/master/SunsUpStreamsUp/appsettings.json) in a text editor, and set the following properties in the given objects.
 
 ### `geography`
 |Name|Values|Description|
@@ -47,14 +47,18 @@
 |`latitude`|[−90.0,90.0]|Decimal degrees of your location north (+) or south (−) of the equator, used to determine the local time of sunrise and sunset|
 |`longitude`|(−180.0,180.0]|Decimal degrees of your location east (+) or west (−) of the prime meridian, used to determine the local time of sunrise and sunset|
 |`timeZone`|IANA zone ID|Time zone for your location, from [IANA/Olson tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (*e.g.* `"America/Los_Angeles"`), or omit this to use the computer's local zone|
-|`minimumSunlightLevel`|[`SunlightLevel`](https://github.com/Aldaviva/SolCalc/blob/master/SolCalc/Data/SunlightLevel.cs)|Stream will be up whenever the sunlight is at least this bright; one of `Night` (always up), `AstronomicalTwilight`, `NauticalTwilight`, `CivilTwilight` (default), or `Daylight`. For example, if you set this to `CivilTwilight`, the stream will start at civil dawn and stop at civil dusk.|
+|`minimumSunlightLevel`|[`SunlightLevel`](https://github.com/Aldaviva/SolCalc/blob/master/SolCalc/Data/SunlightLevel.cs)|Stream will be up whenever the sunlight is at least this bright; one of `Daylight` (brightest), `CivilTwilight` (default, a little dark), `NauticalTwilight` (medium dark), `AstronomicalTwilight` (very dark), or `Night` (useless: always live, totally dark). For example, if you set this to `CivilTwilight`, the stream will start at civil dawn, continue through daylight, and stop at civil dusk.|
 
 ### `stream`
 |Name|Values|Description|
 |-|-|-|
 |`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, defaults to `"localhost"` for when OBS and this program are both installed on the same computer|
-|`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to `4455`|
-|`obsPassword`|string|OBS WebSocket server password you set or copied, not URL-encoded, defaults to `""` for if you disabled authentication|
+|`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to `4455`. If OBS is running on a different computer, any firewall protecting it must allow inbound TCP connections to this port.|
+|`obsPassword`|string|OBS WebSocket server password you set or copied, not URL-encoded, defaults to `""` for when authentication is disabled|
+|`replaceExistingStream`|boolean|Set to `false` to only start a new stream if your channel is not already live, avoiding interruption of an existing broadcast, or `true` to always start the stream at the appointed time, even if that means hijacking the channel from a different broadcast. Defaults to `false`, which requires `twitchUsername`, `twitchClientId`, and `twitchClientSecret` to be provided in order to be effective. Set to `true` to disable this check, even if it's otherwise configured.|
+|`twitchUsername`|string|Your channel name on Twitch. Used when you want to avoid starting a new stream from OBS if you're already broadcasting to your channel from a different computer. Requires `twitchClientId` and `twitchClientSecret` to also be set. Defaults to `null` to always start a stream at the appointed time, even if the channel is already live.|
+|`twitchClientId`|string|Client ID you get after [creating a Twitch OAuth application](https://dev.twitch.tv/console/apps/create). The redirection URL can be `http://localhost`, and the Client Type must be Confidential. Defaults to `null` to always start a stream at the appointed time, even if the channel is already live.|
+|`twitchClientSecret`|string|Client secret you create on your Twitch application. Defaults to `null` to always start a stream at the appointed time, even if the channel is already live.|
 
 ### `logging`
 |Name|Values|Description|
@@ -64,10 +68,10 @@
 
 ## Running
 1. Make sure OBS is already running and ready to start a stream.
-1. Launch `SunsUpStreamsUp`.
+1. Launch this program.
     ```sh
-    ./SunsUpStreamsUp
+    ./sunsupstreamsup
     ```
 1. The program will immediately start the stream if the sun is currently up and the stream is stopped.
 1. The program will continue running, starting and stopping the stream when the sun rises and sets.
-1. To stop this program, press `Ctrl`+`C`.
+1. To stop this program, press <kbd>Ctrl</kbd>+<kbd>C</kbd>.
