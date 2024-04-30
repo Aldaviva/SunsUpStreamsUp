@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.FileProviders;
 using SolCalc.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SunsUpStreamsUp;
 
@@ -48,5 +49,13 @@ public static class Extensions {
 
         return builder;
     }
+
+    /// <summary>
+    /// Indicates whether a specified string is <c>null</c>, empty, or consists only of white-space characters.
+    /// </summary>
+    /// <param name="str">The string to test</param>
+    /// <returns><c>true</c> if the <paramref name="str"/> parameter is <c>null</c> or <see cref="string.Empty"/>, or if  <paramref name="str"/> consists exclusively of white-space characters.</returns>
+    /// <seealso cref="string.IsNullOrWhiteSpace"/>
+    public static bool HasText([NotNullWhen(true)] this string? str) => !string.IsNullOrWhiteSpace(str);
 
 }

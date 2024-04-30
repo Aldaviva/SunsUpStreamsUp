@@ -47,6 +47,24 @@
           "NodaTime": "3.1.11"
         }
       },
+      "TwitchApi.Net": {
+        "type": "Direct",
+        "requested": "[3.2.0, )",
+        "resolved": "3.2.0",
+        "contentHash": "ZtczfbcPKDergOCGZ7QbFDVfnLZG8Jz/kJpB/coPlay/7nFY6dp08OO10LfPRr+SvpAzwuSSDifZFA5X7jjbQw==",
+        "dependencies": {
+          "Macross.Json.Extensions": "1.2.0",
+          "System.Text.Json": "4.7.0"
+        }
+      },
+      "Macross.Json.Extensions": {
+        "type": "Transitive",
+        "resolved": "1.2.0",
+        "contentHash": "4J+UResuTuefzZeXiwfVr3yq38ATCR5HynUMBaqxp7WCmn+6fx66J7P6T4ImzMGLVoarvHRkxRPcJqME0FvG6Q==",
+        "dependencies": {
+          "System.Text.Json": "4.7.0"
+        }
+      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "8.0.0",

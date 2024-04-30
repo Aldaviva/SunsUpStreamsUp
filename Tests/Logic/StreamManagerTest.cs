@@ -14,11 +14,12 @@ public class StreamManagerTest: IDisposable {
     private readonly StreamManager           streamManager;
     private readonly SolarEventEmitter       solarEventEmitter = A.Fake<SolarEventEmitter>();
     private readonly IObsClient              obs               = A.Fake<IObsClient>();
+    private readonly ITwitchApi?             twitch            = null; // A.Fake<ITwitchApi>();
     private readonly StreamOptions           options           = new() { obsHostname = "host", obsPassword = "pass", obsPort = 12345 };
     private readonly CancellationTokenSource cts               = new();
 
     public StreamManagerTest() {
-        streamManager = new StreamManager(solarEventEmitter, obs, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
+        streamManager = new StreamManager(solarEventEmitter, obs, twitch, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
 
         A.CallTo(() => obs.ConnectAsync(A<bool>._, A<string>._, A<string>._, An<int>._, An<EventSubscriptions>._))
             .Invokes(() => obs.PropertyChanged += Raise.FreeForm.With(obs, new PropertyChangedEventArgs("ConnectionState")))

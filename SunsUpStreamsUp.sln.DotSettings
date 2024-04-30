@@ -1,3 +1,4 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/GeneratedFilesAndFolders/=401E27D5_002DE53B_002D4CE6_002D834C_002DEA7FFBB3B552_002Fd_003AFacades_002Ff_003AIObsClient_002Ecs/@EntryIndexedValue">401E27D5-E53B-4CE6-834C-EA7FFBB3B552/d:Facades/f:IObsClient.cs</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/GeneratedFilesAndFolders/=401E27D5_002DE53B_002D4CE6_002D834C_002DEA7FFBB3B552_002Fd_003AFacades/@EntryIndexedValue">401E27D5-E53B-4CE6-834C-EA7FFBB3B552/d:Facades</s:String>
+	
 	</wpf:ResourceDictionary>
