@@ -34,11 +34,13 @@ public static class Extensions {
     /// <returns>the same <see cref="IConfigurationBuilder"/> for chaining</returns>
     public static IConfigurationBuilder AlsoSearchForJsonFilesInExecutableDirectory(this IConfigurationBuilder builder) {
         if (Path.GetDirectoryName(Environment.ProcessPath) is { } installationDir) {
-            PhysicalFileProvider fileProvider = new(installationDir);
-
             IEnumerable<(int index, IConfigurationSource source)> sourcesToAdd = builder.Sources.SelectMany<IConfigurationSource, (int, IConfigurationSource)>((src, oldIndex) =>
                 src is JsonConfigurationSource { Path: { } path } source
-                    ? [(oldIndex, new JsonConfigurationSource { FileProvider = fileProvider, Path = path, Optional = true, ReloadOnChange = source.ReloadOnChange, ReloadDelay = source.ReloadDelay })]
+                    ? [
+                        (oldIndex,
+                         new JsonConfigurationSource
+                             { FileProvider = new PhysicalFileProvider(installationDir), Path = path, Optional = true, ReloadOnChange = source.ReloadOnChange, ReloadDelay = source.ReloadDelay })
+                    ]
                     : []).ToList();
 
             int sourcesAdded = 0;
@@ -54,7 +56,7 @@ public static class Extensions {
     /// Indicates whether a specified string is <c>null</c>, empty, or consists only of white-space characters.
     /// </summary>
     /// <param name="str">The string to test</param>
-    /// <returns><c>true</c> if the <paramref name="str"/> parameter is <c>null</c> or <see cref="string.Empty"/>, or if  <paramref name="str"/> consists exclusively of white-space characters.</returns>
+    /// <returns><c>false</c> if the <paramref name="str"/> parameter is <c>null</c> or <see cref="string.Empty"/>, or if <paramref name="str"/> consists exclusively of whitespace characters; <c>true</c> otherwise.</returns>
     /// <seealso cref="string.IsNullOrWhiteSpace"/>
     public static bool HasText([NotNullWhen(true)] this string? str) => !string.IsNullOrWhiteSpace(str);
 

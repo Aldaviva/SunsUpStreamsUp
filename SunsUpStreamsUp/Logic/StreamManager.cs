@@ -111,7 +111,13 @@ public class StreamManager(
         string? twitchUsername = options.Value.twitchUsername;
         if (twitch != null && !options.Value.replaceExistingStream && twitchUsername.HasText()) {
             logger.LogTrace("Checking if Twitch channel {username} is currently broadcasting from another computer", twitchUsername);
-            HelixPaginatedResponse<HelixStream> userStreams = await twitch.Streams.GetStreamsWithUserLogins([twitchUsername], 1);
+            HelixPaginatedResponse<HelixStream> userStreams;
+            try {
+                userStreams = await twitch.Streams.GetStreamsWithUserLogins([twitchUsername], 1);
+            } catch (HttpRequestException e) {
+                logger.LogWarning(e, "Failed to get stream state of Twitch user {username}, assuming stream is offline", twitchUsername);
+                return false;
+            }
 
             bool isLive = userStreams.Data.Length != 0;
             logger.LogTrace("Twitch channel {channel} is currently {isLive}broadcasting from another computer", twitchUsername, isLive ? "" : "not ");

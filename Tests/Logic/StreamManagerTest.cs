@@ -6,6 +6,8 @@ using SolCalc.Data;
 using SunsUpStreamsUp.Facades;
 using SunsUpStreamsUp.Options;
 using System.ComponentModel;
+using Twitch.Net.Models;
+using Twitch.Net.Models.Responses;
 
 namespace Tests.Logic;
 
@@ -14,7 +16,7 @@ public class StreamManagerTest: IDisposable {
     private readonly StreamManager           streamManager;
     private readonly SolarEventEmitter       solarEventEmitter = A.Fake<SolarEventEmitter>();
     private readonly IObsClient              obs               = A.Fake<IObsClient>();
-    private readonly ITwitchApi?             twitch            = null; // A.Fake<ITwitchApi>();
+    private readonly ITwitchApi              twitch            = A.Fake<ITwitchApi>();
     private readonly StreamOptions           options           = new() { obsHostname = "host", obsPassword = "pass", obsPort = 12345 };
     private readonly CancellationTokenSource cts               = new();
 
@@ -107,6 +109,34 @@ public class StreamManagerTest: IDisposable {
         solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDusk));
 
         A.CallTo(() => obs.StopStream()).MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task dontStartStreamIfAlreadyBroadcastingElsewhere() {
+        options.twitchUsername        = "a";
+        options.replaceExistingStream = false;
+
+        A.CallTo(() => twitch.Streams.GetStreamsWithUserLogins(A<string[]>._, An<int>._, A<string[]>._, A<string>._, A<string>._))
+            .Returns(new HelixPaginatedResponse<HelixStream> { Data = [new HelixStream()] });
+
+        await streamManager.StartAsync(cts.Token);
+
+        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDawn));
+
+        A.CallTo(() => obs.StartStream()).MustNotHaveHappened();
+    }
+
+    [Fact]
+    public async Task dontCrashDuringInternetOutage() {
+        options.twitchUsername        = "a";
+        options.replaceExistingStream = false;
+
+        A.CallTo(() => twitch.Streams.GetStreamsWithUserLogins(A<string[]>._, An<int>._, A<string[]>._, A<string>._, A<string>._))
+            .ThrowsAsync(new HttpRequestException());
+
+        await streamManager.StartAsync(cts.Token);
+
+        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDawn));
     }
 
 }

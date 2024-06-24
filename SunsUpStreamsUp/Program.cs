@@ -34,7 +34,7 @@ builder.Services
 using IHost host = builder.Build();
 
 try {
-    host.Run();
+    await host.RunAsync();
     return 0;
 } catch (ObsFailedToConnect) {
     return 1;
