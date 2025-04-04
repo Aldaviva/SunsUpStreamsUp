@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using OBSStudioClient.Enums;
+using OBSStudioClient.Exceptions;
 using OBSStudioClient.Responses;
 using SolCalc.Data;
 using SunsUpStreamsUp.Options;
@@ -16,13 +17,16 @@ public class StreamManagerTest: IDisposable {
 
     private readonly StreamManager           streamManager;
     private readonly SolarEventEmitter       solarEventEmitter = A.Fake<SolarEventEmitter>();
+    private readonly IObsClientFactory       obsFactory        = A.Fake<IObsClientFactory>();
     private readonly IObsClient              obs               = A.Fake<IObsClient>();
     private readonly ITwitchApi              twitch            = A.Fake<ITwitchApi>();
     private readonly StreamOptions           options           = new() { obsHostname = "host", obsPassword = "pass", obsPort = 12345 };
     private readonly CancellationTokenSource cts               = new();
 
     public StreamManagerTest() {
-        streamManager = new StreamManager(solarEventEmitter, obs, twitch, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
+        streamManager = new StreamManager(solarEventEmitter, obsFactory, twitch, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
+
+        A.CallTo(() => obsFactory.Connect(A<Uri>._, A<string>._, A<CancellationToken>._)).Returns(obs);
 
         A.CallTo(() => obs.ConnectAsync(A<bool>._, A<string>._, A<string>._, An<int>._, An<EventSubscriptions>._))
             .Invokes(() => obs.PropertyChanged += Raise.FreeForm.With(obs, new PropertyChangedEventArgs("ConnectionState")))
@@ -43,13 +47,12 @@ public class StreamManagerTest: IDisposable {
     public async Task authSucceeded() {
         await streamManager.StartAsync(cts.Token);
 
-        A.CallTo(() => obs.ConnectAsync(true, "pass", "host", 12345, EventSubscriptions.None)).MustHaveHappened();
+        A.CallTo(() => obsFactory.Connect(new Uri("ws://host:12345"), "pass", A<CancellationToken>._)).MustHaveHappened();
     }
 
     [Fact]
     public async Task authFailed() {
-        A.CallTo(() => obs.ConnectAsync(A<bool>._, A<string>._, A<string>._, An<int>._, An<EventSubscriptions>._)).Returns(false);
-        A.CallTo(() => obs.ConnectionState).Returns(ConnectionState.Disconnected);
+        A.CallTo(() => obsFactory.Connect(A<Uri>._, A<string>._, A<CancellationToken>._)).Returns<IObsClient?>(null);
 
         Func<Task> thrower = async () => await streamManager.StartAsync(cts.Token);
         await thrower.Should().ThrowAsync<ObsFailedToConnect>();
@@ -138,6 +141,16 @@ public class StreamManagerTest: IDisposable {
         await streamManager.StartAsync(cts.Token);
 
         solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDawn));
+    }
+
+    [Fact]
+    public async Task dontCrashIfStoppingWhileAlreadyStopped() {
+        A.CallTo(() => obs.StopStream()).ThrowsAsync(new ObsResponseException(RequestStatusCode.OutputNotRunning, null));
+
+        await streamManager.StartAsync(cts.Token);
+
+        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDawn));
+        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDusk));
     }
 
 }

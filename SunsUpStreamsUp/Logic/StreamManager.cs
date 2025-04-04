@@ -89,7 +89,7 @@ public class StreamManager(
             try {
                 await obs.StopStream();
             } catch (ObsResponseException ex) when (ex.ErrorCode == RequestStatusCode.OutputNotRunning) {
-                // already in the desired state, do nothing
+                logger.LogDebug("Tried to stop stream but it was already stopped, doing nothing");
             }
         } else if (!await isChannelLive()) {
             await obs.StartStream();
