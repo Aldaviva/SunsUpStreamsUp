@@ -15,6 +15,7 @@
         <Copyright>© 2025 $(Authors)</Copyright>
         <Company>$(Authors)</Company>
         <NoWarn>CS8524</NoWarn>
+        <SelfContained>false</SelfContained>
     </PropertyGroup>
 
     <ItemGroup>

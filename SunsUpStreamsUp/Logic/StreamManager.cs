@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using NodaTime;
+using OBSStudioClient.Enums;
+using OBSStudioClient.Exceptions;
 using SolCalc;
 using SolCalc.Data;
 using SunsUpStreamsUp.Options;
@@ -12,11 +14,11 @@ using Unfucked.Twitch;
 namespace SunsUpStreamsUp.Logic;
 
 public class StreamManager(
-    SolarEventEmitter       solarEventEmitter,
-    IObsClientFactory       obsClientFactory,
-    ITwitchApi?             twitch,
-    IClock                  clock,
-    ILogger<StreamManager>  logger,
+    SolarEventEmitter solarEventEmitter,
+    IObsClientFactory obsClientFactory,
+    ITwitchApi? twitch,
+    IClock clock,
+    ILogger<StreamManager> logger,
     IOptions<StreamOptions> options
 ): IHostedService, IDisposable {
 
@@ -84,7 +86,11 @@ public class StreamManager(
         logger.LogInformation("{action} stream because it is now {timeOfDay}", shouldStreamBeLive ? "Starting" : "Stopping", e.Name.ToString(true));
 
         if (!shouldStreamBeLive) {
-            await obs.StopStream();
+            try {
+                await obs.StopStream();
+            } catch (ObsResponseException ex) when (ex.ErrorCode == RequestStatusCode.OutputNotRunning) {
+                // already in the desired state, do nothing
+            }
         } else if (!await isChannelLive()) {
             await obs.StartStream();
         } else {
