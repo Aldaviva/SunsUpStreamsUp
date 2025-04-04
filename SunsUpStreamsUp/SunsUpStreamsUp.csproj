@@ -27,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Include="..\Readme.md;..\.github*\**" />
         <None Update="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" />
         <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>

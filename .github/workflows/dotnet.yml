@@ -87,7 +87,7 @@ jobs:
       with:
         name: ${{ env.ProjectName }}-${{ matrix.TargetPlatform }}
         path: |
-          ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/${{ env.ProjectName }}
-          ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/${{ env.ProjectName }}.exe
+          ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/sunsupstreamsup
+          ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/sunsupstreamsup.exe
           ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/appsettings.json
         if-no-files-found: error
