@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <RollForward>latestMajor</RollForward>
+        <!-- <PublishAot>true</PublishAot> --> <!-- Enabling AOT causes the third-party OBSClient library to mysteriously hang forever when connecting to the OBS WebSocket server -->
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <Version>0.2.0</Version>
+        <Authors>Ben Hutchison</Authors>
+        <Copyright>© 2025 $(Authors)</Copyright>
+        <Company>$(Authors)</Company>
+        <AssemblyName>$(AssemblyName.ToLower())</AssemblyName> <!-- executable base filename -->
+        <AssemblyTitle>OBS Control</AssemblyTitle> <!-- file description -->
+        <SelfContained>false</SelfContained>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
+        <PackageReference Include="Unfucked.OBS" Version="0.0.0-beta3" />
+    </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿using SolCalc.Data;
+using SolCalc.Data;
 
 namespace SunsUpStreamsUp.Options;
 

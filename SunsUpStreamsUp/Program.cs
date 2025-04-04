@@ -1,18 +1,18 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NodaTime;
 using SunsUpStreamsUp;
-using SunsUpStreamsUp.Facades;
 using SunsUpStreamsUp.Logic;
 using SunsUpStreamsUp.Options;
 using Twitch.Net;
+using Unfucked;
+using Unfucked.OBS;
+using Unfucked.Twitch;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.Configuration.AlsoSearchForJsonFilesInExecutableDirectory();
 
-builder.Logging.AddConsole(options => options.FormatterName = MyConsoleFormatter.NAME).AddConsoleFormatter<MyConsoleFormatter, MyConsoleFormatter.MyConsoleOptions>(options => {
-    options.includeNamespaces = false;
-});
+builder.Logging.AddUnfuckedConsole(options => options.Color = true);
 
 builder.Services
     .Configure<StreamOptions>(builder.Configuration.GetSection("stream"))
@@ -21,7 +21,7 @@ builder.Services
     .AddSingleton<SolarEventEmitter, SolarEventEmitterImpl>()
     .AddHostedService(s => s.GetRequiredService<SolarEventEmitter>())
     .AddSingleton<IClock>(SystemClock.Instance)
-    .AddSingleton<IObsClient, ObsClientFacade>()
+    .AddSingleton<IObsClientFactory, ObsClientFactory>()
     .AddSingleton(TimeProvider.System)
     .AddSingleton<ITwitchApi>(services => {
         StreamOptions options      = services.GetRequiredService<IOptions<StreamOptions>>().Value;

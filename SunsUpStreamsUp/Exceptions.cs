@@ -1,4 +1,4 @@
-﻿namespace SunsUpStreamsUp;
+namespace SunsUpStreamsUp;
 
 public abstract class SunsUpStreamsUpException(string? message, Exception? innerException = null): ApplicationException(message, innerException);
 

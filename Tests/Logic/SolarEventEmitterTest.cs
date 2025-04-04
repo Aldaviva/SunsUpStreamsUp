@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Events;
+using FluentAssertions.Events;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NodaTime.Extensions;

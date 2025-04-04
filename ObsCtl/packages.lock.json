@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net8.0": {
+      "McMaster.Extensions.CommandLineUtils": {
+        "type": "Direct",
+        "requested": "[4.1.1, )",
+        "resolved": "4.1.1",
+        "contentHash": "zxgDY+G5yVq2q8sVB3Z275Qkxed1jC95nwAfnlSyoG4l5Nicvd4+ke1jXusEZEfyuErlAgXCKS937c13FmZWBg==",
+        "dependencies": {
+          "System.ComponentModel.Annotations": "5.0.0"
+        }
+      },
+      "Unfucked.OBS": {
+        "type": "Direct",
+        "requested": "[0.0.0-beta3, )",
+        "resolved": "0.0.0-beta3",
+        "contentHash": "Ns6OWaYdSO7+6H40nLSRkQKcF/ZOy++wah9UiYUVNLiREcNNeJKYQUYqDZsSLCVhNjDfVuOzeplBLp+ClerwJw==",
+        "dependencies": {
+          "OBSClient": "2.1.1"
+        }
+      },
+      "OBSClient": {
+        "type": "Transitive",
+        "resolved": "2.1.1",
+        "contentHash": "ozdgutUCuDVFi18DJkGndp7p+OODv51nnH8Kq4FEhNOVOWJHd/aWfgRo3hDQvN8ZJYiR1PliKfEyvRCqkuGUIQ=="
+      },
+      "System.ComponentModel.Annotations": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "dMkqfy2el8A8/I76n2Hi1oBFEbG1SfxD2l5nhwXV3XjlnOmwxJlQbYpJH4W51odnU9sARCSAgv7S3CyAFMkpYg=="
+      }
+    },
+    "net8.0/linux-arm": {},
+    "net8.0/linux-arm64": {},
+    "net8.0/linux-x64": {},
+    "net8.0/osx-arm64": {},
+    "net8.0/osx-x64": {},
+    "net8.0/win-arm64": {},
+    "net8.0/win-x64": {}
+  }
+}

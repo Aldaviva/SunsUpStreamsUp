@@ -1,4 +1,4 @@
-﻿namespace SunsUpStreamsUp.Options;
+namespace SunsUpStreamsUp.Options;
 
 public record StreamOptions {
 

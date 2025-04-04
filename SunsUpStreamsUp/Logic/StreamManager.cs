@@ -1,30 +1,55 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NodaTime;
-using OBSStudioClient.Enums;
 using SolCalc;
 using SolCalc.Data;
-using SunsUpStreamsUp.Facades;
 using SunsUpStreamsUp.Options;
-using System.ComponentModel;
 using Twitch.Net.Models;
 using Twitch.Net.Models.Responses;
+using Unfucked;
+using Unfucked.OBS;
+using Unfucked.Twitch;
 
 namespace SunsUpStreamsUp.Logic;
 
 public class StreamManager(
     SolarEventEmitter       solarEventEmitter,
-    IObsClient              obs,
+    IObsClientFactory       obsClientFactory,
     ITwitchApi?             twitch,
     IClock                  clock,
     ILogger<StreamManager>  logger,
     IOptions<StreamOptions> options
 ): IHostedService, IDisposable {
 
+    private IObsClient obs = null!;
+
     public async Task StartAsync(CancellationToken cancellationToken) {
         try {
-            await connectToObs(cancellationToken);
+            IObsClient? obsClient = await obsClientFactory.Connect(new UriBuilder("ws", options.Value.obsHostname, options.Value.obsPort).Uri, options.Value.obsPassword, cancellationToken);
 
-            bool          isLocalObsStreamingNow = (await obs.GetStreamStatus()).OutputActive;
+            if (obsClient == null) {
+                ObsFailedToConnect exception = new(options.Value.obsHostname, options.Value.obsPort, !string.IsNullOrEmpty(options.Value.obsPassword));
+                logger.LogError(
+                    """
+                    {message}
+
+                    Make sure:
+                    1) OBS is running
+                    2) the OBS WebSocket server is enabled in Tools > WebSocket Server Settings
+                    3) {hostname} is the correct hostname of the computer running OBS
+                    4) {port} is the correct TCP port of the OBS WebSocket server (default 4455)
+                    5) inbound connections to TCP port {port} on the OBS computer are not being blocked by a firewall, if this program is running on a different computer from OBS
+                    6) the OBS WebSocket password is set correctly in appsettings.json
+                    7) the password is not URL-encoded (e.g. you must use ' ' instead of '%20' for a space), despite what the OBS WebSocket Connect Info dialog box shows; just normal JSON string escaping is required (e.g. '\"' instead of '"' for a double quotation mark)
+
+                    Configure this program in {configFile}
+
+                    """, exception.Message, options.Value.obsHostname, options.Value.obsPort, options.Value.obsPort,
+                    Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory, "appsettings.json"));
+                throw exception;
+            }
+
+            obs = obsClient;
+            bool          isLocalObsStreamingNow = (await obsClient.GetStreamStatus()).OutputActive;
             Task<bool>    isRemotelyStreamingNow = isChannelLive();
             SunlightLevel currentSunlight        = solarEventEmitter.currentSunlight;
             bool          shouldBeStreamingNow   = currentSunlight >= solarEventEmitter.minimumSunlightLevel;
@@ -33,7 +58,7 @@ public class StreamManager(
 
             if (shouldBeStreamingNow && !isLocalObsStreamingNow && !await isRemotelyStreamingNow) {
                 logger.LogInformation("Starting stream now because it should have already been live before this program launched, since it is currently {light}", currentSunlight.ToString(true));
-                await obs.StartStream();
+                await obsClient.StartStream();
             } else if (isLocalObsStreamingNow || await isRemotelyStreamingNow) {
                 logger.LogInformation("Stream is already live, leaving it running until {timeOfDay}", solarEventEmitter.minimumSunlightLevel.GetEnd(false).ToString(true));
             } else {
@@ -67,7 +92,7 @@ public class StreamManager(
         }
     }
 
-    private async Task connectToObs(CancellationToken cancellationToken = default) {
+    /*private async Task connectToObs(CancellationToken cancellationToken = default) {
         TaskCompletionSource authenticated = new();
 
         obs.PropertyChanged += onObsPropertyChanged;
@@ -105,7 +130,7 @@ public class StreamManager(
         await authenticated.Task.WaitAsync(cancellationToken);
         logger.LogDebug("Connected to OBS");
         obs.PropertyChanged -= onObsPropertyChanged;
-    }
+    }*/
 
     private async Task<bool> isChannelLive() {
         string? twitchUsername = options.Value.twitchUsername;

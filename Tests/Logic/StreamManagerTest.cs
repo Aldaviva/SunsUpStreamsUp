@@ -1,13 +1,14 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using OBSStudioClient.Enums;
 using OBSStudioClient.Responses;
 using SolCalc.Data;
-using SunsUpStreamsUp.Facades;
 using SunsUpStreamsUp.Options;
 using System.ComponentModel;
 using Twitch.Net.Models;
 using Twitch.Net.Models.Responses;
+using Unfucked.OBS;
+using Unfucked.Twitch;
 
 namespace Tests.Logic;
 

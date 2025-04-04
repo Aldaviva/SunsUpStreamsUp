@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NodaTime;
 using NodaTime.Extensions;
 using SolCalc;

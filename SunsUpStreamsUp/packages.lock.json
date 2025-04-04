@@ -32,12 +32,6 @@
           "Microsoft.Extensions.Options": "9.0.3"
         }
       },
-      "OBSClient": {
-        "type": "Direct",
-        "requested": "[2.1.1, )",
-        "resolved": "2.1.1",
-        "contentHash": "ozdgutUCuDVFi18DJkGndp7p+OODv51nnH8Kq4FEhNOVOWJHd/aWfgRo3hDQvN8ZJYiR1PliKfEyvRCqkuGUIQ=="
-      },
       "SolCalc": {
         "type": "Direct",
         "requested": "[1.0.0, )",
@@ -47,14 +41,32 @@
           "NodaTime": "3.1.11"
         }
       },
-      "TwitchApi.Net": {
+      "Unfucked.DI": {
         "type": "Direct",
-        "requested": "[3.2.0, )",
-        "resolved": "3.2.0",
-        "contentHash": "ZtczfbcPKDergOCGZ7QbFDVfnLZG8Jz/kJpB/coPlay/7nFY6dp08OO10LfPRr+SvpAzwuSSDifZFA5X7jjbQw==",
+        "requested": "[0.0.0-beta6, )",
+        "resolved": "0.0.0-beta6",
+        "contentHash": "cqGPHz0NpuP2XyIfvy2BGrHMrpGVFwohOlm5orv02oKnf99GLYOnOYDYIyNWmNXSnLjVBUul6mx210ka0wqlhw==",
         "dependencies": {
-          "Macross.Json.Extensions": "1.2.0",
-          "System.Text.Json": "4.7.0"
+          "Microsoft.Extensions.Hosting": "8.0.1",
+          "Unfucked": "0.0.0-beta8"
+        }
+      },
+      "Unfucked.OBS": {
+        "type": "Direct",
+        "requested": "[0.0.0-beta3, )",
+        "resolved": "0.0.0-beta3",
+        "contentHash": "Ns6OWaYdSO7+6H40nLSRkQKcF/ZOy++wah9UiYUVNLiREcNNeJKYQUYqDZsSLCVhNjDfVuOzeplBLp+ClerwJw==",
+        "dependencies": {
+          "OBSClient": "2.1.1"
+        }
+      },
+      "Unfucked.Twitch": {
+        "type": "Direct",
+        "requested": "[0.0.0-beta2, )",
+        "resolved": "0.0.0-beta2",
+        "contentHash": "YV3PlslHSm95H7J3xKDlBSBEoXeeuzVXiqBDhyleENe2kbH3LrDpx8LDUTyvFiOL8IKnjiG+ywsKuJals16nzQ==",
+        "dependencies": {
+          "TwitchApi.Net": "3.2.0"
         }
       },
       "Macross.Json.Extensions": {
@@ -327,6 +339,11 @@
           "System.Runtime.CompilerServices.Unsafe": "4.7.1"
         }
       },
+      "OBSClient": {
+        "type": "Transitive",
+        "resolved": "2.1.1",
+        "contentHash": "ozdgutUCuDVFi18DJkGndp7p+OODv51nnH8Kq4FEhNOVOWJHd/aWfgRo3hDQvN8ZJYiR1PliKfEyvRCqkuGUIQ=="
+      },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
         "resolved": "9.0.3",
@@ -360,6 +377,44 @@
           "System.IO.Pipelines": "9.0.3",
           "System.Text.Encodings.Web": "9.0.3"
         }
+      },
+      "TwitchApi.Net": {
+        "type": "Transitive",
+        "resolved": "3.2.0",
+        "contentHash": "ZtczfbcPKDergOCGZ7QbFDVfnLZG8Jz/kJpB/coPlay/7nFY6dp08OO10LfPRr+SvpAzwuSSDifZFA5X7jjbQw==",
+        "dependencies": {
+          "Macross.Json.Extensions": "1.2.0",
+          "System.Text.Json": "4.7.0"
+        }
+      },
+      "Unfucked": {
+        "type": "Transitive",
+        "resolved": "0.0.0-beta8",
+        "contentHash": "QOf9t3vStYNKmOVXa51SYyOwoYPHk89Q/RMDVxpyDPlu9TAcnYlabHjbMbqifLqhoVzisKyUMrFQumJbGBQ1hQ=="
+      }
+    },
+    "net8.0/linux-arm": {
+      "System.Diagnostics.EventLog": {
+        "type": "Transitive",
+        "resolved": "9.0.3",
+        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+      },
+      "System.Text.Encodings.Web": {
+        "type": "Transitive",
+        "resolved": "9.0.3",
+        "contentHash": "5L+iI4fBMtGwt4FHLQh40/rgdbxnw6lHaLkR3gbaHG97TohzUv+z/oP03drsTR1lKCLhOkp40cFnHYOQLtpT5A=="
+      }
+    },
+    "net8.0/linux-arm64": {
+      "System.Diagnostics.EventLog": {
+        "type": "Transitive",
+        "resolved": "9.0.3",
+        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+      },
+      "System.Text.Encodings.Web": {
+        "type": "Transitive",
+        "resolved": "9.0.3",
+        "contentHash": "5L+iI4fBMtGwt4FHLQh40/rgdbxnw6lHaLkR3gbaHG97TohzUv+z/oP03drsTR1lKCLhOkp40cFnHYOQLtpT5A=="
       }
     },
     "net8.0/linux-x64": {
@@ -387,6 +442,18 @@
       }
     },
     "net8.0/osx-x64": {
+      "System.Diagnostics.EventLog": {
+        "type": "Transitive",
+        "resolved": "9.0.3",
+        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+      },
+      "System.Text.Encodings.Web": {
+        "type": "Transitive",
+        "resolved": "9.0.3",
+        "contentHash": "5L+iI4fBMtGwt4FHLQh40/rgdbxnw6lHaLkR3gbaHG97TohzUv+z/oP03drsTR1lKCLhOkp40cFnHYOQLtpT5A=="
+      }
+    },
+    "net8.0/win-arm64": {
       "System.Diagnostics.EventLog": {
         "type": "Transitive",
         "resolved": "9.0.3",

@@ -6,7 +6,7 @@
             <DataCollector friendlyName="XPlat code coverage">
                 <Configuration>
                     <Format>lcov</Format>
-                    <!-- FIXME: exclude DecimalMath and MyConsoleFormatter from coverage -->
+                    <Exclude>[ObsCtl]*</Exclude>
                 </Configuration>
             </DataCollector>
         </DataCollectors>
