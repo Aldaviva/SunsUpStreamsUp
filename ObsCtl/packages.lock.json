@@ -13,9 +13,9 @@
       },
       "Unfucked.OBS": {
         "type": "Direct",
-        "requested": "[0.0.0-beta3, )",
-        "resolved": "0.0.0-beta3",
-        "contentHash": "Ns6OWaYdSO7+6H40nLSRkQKcF/ZOy++wah9UiYUVNLiREcNNeJKYQUYqDZsSLCVhNjDfVuOzeplBLp+ClerwJw==",
+        "requested": "[0.0.1-beta.1, )",
+        "resolved": "0.0.1-beta.1",
+        "contentHash": "IvVxrDS+yD4ZdmyYpgKwlLmDUHL717w4bp6eINrq220wkncYSr36+Z9WTc6u+6QWj3wuClAv3HLN6RBV55pmrQ==",
         "dependencies": {
           "OBSClient": "2.1.1"
         }

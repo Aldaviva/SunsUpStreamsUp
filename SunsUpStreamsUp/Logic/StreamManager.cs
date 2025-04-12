@@ -5,9 +5,11 @@ using OBSStudioClient.Exceptions;
 using SolCalc;
 using SolCalc.Data;
 using SunsUpStreamsUp.Options;
+using ThrottleDebounce;
 using Twitch.Net.Models;
 using Twitch.Net.Models.Responses;
 using Unfucked;
+using Unfucked.DateTime;
 using Unfucked.OBS;
 using Unfucked.Twitch;
 
@@ -22,17 +24,34 @@ public class StreamManager(
     IOptions<StreamOptions> options
 ): IHostedService, IDisposable {
 
-    private IObsClient obs = null!;
+    private IObsClient? obs;
 
     public async Task StartAsync(CancellationToken cancellationToken) {
         try {
-            IObsClient? obsClient = await obsClientFactory.Connect(new UriBuilder("ws", options.Value.obsHostname, options.Value.obsPort).Uri, options.Value.obsPassword, cancellationToken);
+            Uri websocketServerUrl = new UrlBuilder("ws", options.Value.obsHostname, options.Value.obsPort);
+            logger.LogDebug("Connecting to OBS at {url}", websocketServerUrl);
 
-            if (obsClient == null) {
-                ObsFailedToConnect exception = new(options.Value.obsHostname, options.Value.obsPort, !string.IsNullOrEmpty(options.Value.obsPassword));
+            try {
+                const int          MAX_ATTEMPTS = 34;
+                ObsFailedToConnect exception    = new(options.Value.obsHostname, options.Value.obsPort, !string.IsNullOrEmpty(options.Value.obsPassword));
+                obs = await Retrier.Attempt(async _ => {
+                        IObsClient? iObsClient = await obsClientFactory.Connect(websocketServerUrl, options.Value.obsPassword, cancellationToken);
+                        return iObsClient ?? throw exception;
+                    },
+                    maxAttempts: MAX_ATTEMPTS,
+                    delay: Retrier.Delays.Linear((Seconds) 1, (Seconds) 1, (Seconds) 10), // 4m55s
+                    isRetryAllowed: _ => true,
+                    beforeRetry: (i, _) => {
+                        logger.LogWarning("Failed to connect to OBS, retrying #{attempt:N0}/{max:N0}", i + 1, MAX_ATTEMPTS - 1);
+                        return Task.CompletedTask;
+                    },
+                    cancellationToken: cancellationToken);
+            } catch (TaskCanceledException) {
+                return;
+            } catch (Exception e) when (e is not OutOfMemoryException) {
                 logger.LogError(
                     """
-                    {message}
+                    {type}: {message}
 
                     Make sure:
                     1) OBS is running
@@ -45,13 +64,12 @@ public class StreamManager(
 
                     Configure this program in {configFile}
 
-                    """, exception.Message, options.Value.obsHostname, options.Value.obsPort, options.Value.obsPort,
+                    """, e.GetType().Name, e.Message, options.Value.obsHostname, options.Value.obsPort, options.Value.obsPort,
                     Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory, "appsettings.json"));
-                throw exception;
+                throw;
             }
 
-            obs = obsClient;
-            bool          isLocalObsStreamingNow = (await obsClient.GetStreamStatus()).OutputActive;
+            bool          isLocalObsStreamingNow = (await obs.GetStreamStatus()).OutputActive;
             Task<bool>    isRemotelyStreamingNow = isChannelLive();
             SunlightLevel currentSunlight        = solarEventEmitter.currentSunlight;
             bool          shouldBeStreamingNow   = currentSunlight >= solarEventEmitter.minimumSunlightLevel;
@@ -60,7 +78,7 @@ public class StreamManager(
 
             if (shouldBeStreamingNow && !isLocalObsStreamingNow && !await isRemotelyStreamingNow) {
                 logger.LogInformation("Starting stream now because it should have already been live before this program launched, since it is currently {light}", currentSunlight.ToString(true));
-                await obsClient.StartStream();
+                await obs.StartStream();
             } else if (isLocalObsStreamingNow || await isRemotelyStreamingNow) {
                 logger.LogInformation("Stream is already live, leaving it running until {timeOfDay}", solarEventEmitter.minimumSunlightLevel.GetEnd(false).ToString(true));
             } else {
@@ -73,8 +91,10 @@ public class StreamManager(
     }
 
     public Task StopAsync(CancellationToken cancellationToken) {
-        obs.Disconnect();
-        logger.LogInformation("Disconnected from OBS");
+        if (obs != null) {
+            obs.Disconnect();
+            logger.LogInformation("Disconnected from OBS");
+        }
         return Task.CompletedTask;
     }
 
@@ -82,6 +102,8 @@ public class StreamManager(
         e.Name.ToString(true), e.IsSunRising ? "start" : "stop", e.Time, e.Time.ToInstant() - clock.GetCurrentInstant());
 
     private async void onSolarElevationChange(object? sender, SunlightChange e) {
+        if (obs == null) return;
+
         bool shouldStreamBeLive = e.IsSunRising;
         logger.LogInformation("{action} stream because it is now {timeOfDay}", shouldStreamBeLive ? "Starting" : "Stopping", e.Name.ToString(true));
 
@@ -97,46 +119,6 @@ public class StreamManager(
             logger.LogInformation("While attempting to start the stream, it was already live on another computer, so not interrupting the existing stream.");
         }
     }
-
-    /*private async Task connectToObs(CancellationToken cancellationToken = default) {
-        TaskCompletionSource authenticated = new();
-
-        obs.PropertyChanged += onObsPropertyChanged;
-
-        void onObsPropertyChanged(object? _, PropertyChangedEventArgs eventArgs) {
-            if (eventArgs.PropertyName == nameof(IObsClient.ConnectionState) && obs.ConnectionState == ConnectionState.Connected) {
-                authenticated.SetResult();
-            }
-        }
-
-        logger.LogInformation("Connecting to OBS at ws://{host}:{port}", options.Value.obsHostname, options.Value.obsPort);
-        if (!await obs.ConnectAsync(true, options.Value.obsPassword, options.Value.obsHostname, options.Value.obsPort, EventSubscriptions.None)) {
-            ObsFailedToConnect exception = new(options.Value.obsHostname, options.Value.obsPort, !string.IsNullOrEmpty(options.Value.obsPassword));
-            logger.LogError(
-                """
-                {message}
-
-                Make sure:
-                1) OBS is running
-                2) the OBS WebSocket server is enabled in Tools > WebSocket Server Settings
-                3) {hostname} is the correct hostname of the computer running OBS
-                4) {port} is the correct TCP port of the OBS WebSocket server (default 4455)
-                5) inbound connections to TCP port {port} on the OBS computer are not being blocked by a firewall, if this program is running on a different computer from OBS
-                6) the OBS WebSocket password is set correctly in appsettings.json
-                7) the password is not URL-encoded (e.g. you must use ' ' instead of '%20' for a space), despite what the OBS WebSocket Connect Info dialog box shows; just normal JSON string escaping is required (e.g. '\"' instead of '"' for a double quotation mark)
-
-                Configure this program in {configFile}
-
-                """, exception.Message, options.Value.obsHostname, options.Value.obsPort, options.Value.obsPort,
-                Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory, "appsettings.json"));
-            throw exception;
-
-        }
-
-        await authenticated.Task.WaitAsync(cancellationToken);
-        logger.LogDebug("Connected to OBS");
-        obs.PropertyChanged -= onObsPropertyChanged;
-    }*/
 
     private async Task<bool> isChannelLive() {
         string? twitchUsername = options.Value.twitchUsername;
@@ -163,6 +145,8 @@ public class StreamManager(
         if (disposing) {
             solarEventEmitter.waitingForSolarElevationChange -= onWaitForSolarElevationChange;
             solarEventEmitter.solarElevationChanged          -= onSolarElevationChange;
+            obs?.Dispose();
+            obs = null;
         }
     }
 
