@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 using NodaTime;
+using RuntimeUpgrade.Notifier;
+using RuntimeUpgrade.Notifier.Data;
 using SunsUpStreamsUp;
 using SunsUpStreamsUp.Logic;
 using SunsUpStreamsUp.Options;
@@ -28,10 +30,15 @@ builder.Services
         string?       clientId     = options.twitchClientId;
         string?       clientSecret = options.twitchClientSecret;
         return clientId.HasText() && clientSecret.HasText() ? new TwitchApiClient(new TwitchApiBuilder(clientId).WithClientSecret(clientSecret).Build()) : null!;
-        // DI is fine with null return value, even if the .AddSingleton() method isn't annotated as such
     });
 
 using IHost host = builder.Build();
+
+using RuntimeUpgradeNotifier upgradeNotifier = new() {
+    LoggerFactory   = host.Services.GetRequiredService<ILoggerFactory>(),
+    RestartStrategy = RestartStrategy.AutoRestartProcess,
+    ExitStrategy    = new HostedLifetimeExit(host)
+};
 
 try {
     await host.RunAsync();

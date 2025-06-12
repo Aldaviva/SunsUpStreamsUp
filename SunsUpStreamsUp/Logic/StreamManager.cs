@@ -35,17 +35,14 @@ public class StreamManager(
                 const int          MAX_ATTEMPTS = 34;
                 ObsFailedToConnect exception    = new(options.Value.obsHostname, options.Value.obsPort, !string.IsNullOrEmpty(options.Value.obsPassword));
                 obs = await Retrier.Attempt(async _ => {
-                        IObsClient? iObsClient = await obsClientFactory.Connect(websocketServerUrl, options.Value.obsPassword, cancellationToken);
-                        return iObsClient ?? throw exception;
-                    },
-                    maxAttempts: MAX_ATTEMPTS,
-                    delay: Retrier.Delays.Linear((Seconds) 1, (Seconds) 1, (Seconds) 10), // 4m55s
-                    isRetryAllowed: _ => true,
-                    beforeRetry: (i, _) => {
-                        logger.LogWarning("Failed to connect to OBS, retrying #{attempt:N0}/{max:N0}", i + 1, MAX_ATTEMPTS - 1);
-                        return Task.CompletedTask;
-                    },
-                    cancellationToken: cancellationToken);
+                    IObsClient? iObsClient = await obsClientFactory.Connect(websocketServerUrl, options.Value.obsPassword, cancellationToken);
+                    return iObsClient ?? throw exception;
+                }, new Retrier.Options {
+                    MaxAttempts       = 34,
+                    Delay             = Retrier.Delays.Linear((Seconds) 1, (Seconds) 1, (Seconds) 10), // 4m55s
+                    BeforeRetry       = (i, _) => logger.LogWarning("Failed to connect to OBS, retrying #{attempt:N0}/{max:N0}", i + 1, MAX_ATTEMPTS - 1),
+                    CancellationToken = cancellationToken
+                });
             } catch (TaskCanceledException) {
                 return;
             } catch (Exception e) when (e is not OutOfMemoryException) {
