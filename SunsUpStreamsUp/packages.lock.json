@@ -52,9 +52,9 @@
       },
       "ThrottleDebounce": {
         "type": "Direct",
-        "requested": "[3.0.0-beta3, )",
-        "resolved": "3.0.0-beta3",
-        "contentHash": "pZTefK4xZEvc5Q+M63lIAKVl8ZDsPWiUvuFk1+d9q3Hmgme76P3qC07Ho40ccaUiUKQYnO3a/dnu/SD8CsPZqQ=="
+        "requested": "[3.0.0-beta4, )",
+        "resolved": "3.0.0-beta4",
+        "contentHash": "COoRYQqWRZmENa7YQk7UrFISMBkdhECX1wasSFMy5am34ok5s1JYDgS8Ea5WLk0L/iau1jM904bldCZZF56xAQ=="
       },
       "Unfucked.DateTime": {
         "type": "Direct",
@@ -67,12 +67,12 @@
       },
       "Unfucked.DI": {
         "type": "Direct",
-        "requested": "[0.0.1-beta.1, )",
-        "resolved": "0.0.1-beta.1",
-        "contentHash": "rRig5uxCbfMu9smwYhBYHphcFjN29hrlCC9K2vw6jex4Qx7fZ7sSNe2/ugxGY09xuYIXcmMpGSX8jD3meordqA==",
+        "requested": "[0.0.1-beta.2, )",
+        "resolved": "0.0.1-beta.2",
+        "contentHash": "bjJPSbCV1mCTb8rjXKvr3jNAX6NIZaNOm28BkFkcm1t4Kxsk3h0gV82vj3DSgvbT+KTYtH38eD9gr2M5ceUp+Q==",
         "dependencies": {
           "Microsoft.Extensions.Hosting": "8.0.1",
-          "Unfucked": "0.0.1-beta.1"
+          "Unfucked": "0.0.1-beta.5"
         }
       },
       "Unfucked.OBS": {
@@ -406,8 +406,8 @@
       },
       "Unfucked": {
         "type": "Transitive",
-        "resolved": "0.0.1-beta.1",
-        "contentHash": "K20GUaGtfJ0uPLaWzQSFkM8zjWdNl6jTWicSwxb0EV7w0vJ433TUVgWB6zO9gYXwNLrlbWK4GJHZMo+NLA4nOw=="
+        "resolved": "0.0.1-beta.5",
+        "contentHash": "2vpz1u3knWf7F7QCbns1lbEps0wWWeJa1d5lGHiSQ9JTK3YBvd6Nn1jh3AzNTxSLppb9SAPUijLKP63kI3DdvA=="
       }
     },
     "net8.0/linux-arm": {
