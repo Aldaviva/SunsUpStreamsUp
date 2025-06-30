@@ -23,9 +23,9 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
         <PackageReference Include="RuntimeUpgradeNotifier" Version="1.0.0-beta8" />
         <PackageReference Include="SolCalc" Version="1.0.0" />
-        <PackageReference Include="ThrottleDebounce" Version="3.0.0-beta3" />
+        <PackageReference Include="ThrottleDebounce" Version="3.0.0-beta4" />
         <PackageReference Include="Unfucked.DateTime" Version="0.0.1-beta.2" />
-        <PackageReference Include="Unfucked.DI" Version="0.0.1-beta.1" />
+        <PackageReference Include="Unfucked.DI" Version="0.0.1-beta.6" />
         <PackageReference Include="Unfucked.OBS" Version="0.0.1-beta.1" />
         <PackageReference Include="Unfucked.Twitch" Version="0.0.1-beta.1" />
     </ItemGroup>
