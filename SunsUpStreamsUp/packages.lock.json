@@ -52,9 +52,9 @@
       },
       "ThrottleDebounce": {
         "type": "Direct",
-        "requested": "[3.0.0-beta3, )",
-        "resolved": "3.0.0-beta3",
-        "contentHash": "pZTefK4xZEvc5Q+M63lIAKVl8ZDsPWiUvuFk1+d9q3Hmgme76P3qC07Ho40ccaUiUKQYnO3a/dnu/SD8CsPZqQ=="
+        "requested": "[3.0.0-beta5, )",
+        "resolved": "3.0.0-beta5",
+        "contentHash": "hvmR5CBGzzRAO+jJBkZuPUfXeChZRR9X2vfVLYEo7CffFV2oz4yuX9sj80GqH6oxj5KYXodJ+oGaYOtIE+H5tw=="
       },
       "Unfucked.DateTime": {
         "type": "Direct",
