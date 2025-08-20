@@ -5,7 +5,7 @@ using OBSStudioClient.Exceptions;
 using SolCalc;
 using SolCalc.Data;
 using SunsUpStreamsUp.Options;
-using ThrottleDebounce;
+using ThrottleDebounce.Retry;
 using Twitch.Net.Models;
 using Twitch.Net.Models.Responses;
 using Unfucked;
@@ -37,10 +37,10 @@ public class StreamManager(
                 obs = await Retrier.Attempt(async _ => {
                     IObsClient? iObsClient = await obsClientFactory.Connect(websocketServerUrl, options.Value.obsPassword, cancellationToken);
                     return iObsClient ?? throw exception;
-                }, new Retrier.Options {
+                }, new RetryOptions {
                     MaxAttempts       = 34,
-                    Delay             = Retrier.Delays.Linear((Seconds) 1, (Seconds) 1, (Seconds) 10), // 4m55s
-                    BeforeRetry       = (i, _) => logger.LogWarning("Failed to connect to OBS, retrying #{attempt:N0}/{max:N0}", i + 1, MAX_ATTEMPTS - 1),
+                    Delay             = Delays.Linear((Seconds) 1, (Seconds) 1, (Seconds) 10), // 4m55s
+                    BeforeRetry       = (_, i) => logger.LogWarning("Failed to connect to OBS, retrying #{attempt:N0}/{max:N0}", i + 1, MAX_ATTEMPTS - 1),
                     CancellationToken = cancellationToken
                 });
             } catch (TaskCanceledException) {
