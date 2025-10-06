@@ -21,7 +21,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
-        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.0.0-beta8" />
+        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.0.0-beta9" />
         <PackageReference Include="SolCalc" Version="1.0.0" />
         <PackageReference Include="ThrottleDebounce" Version="3.0.0-beta5" />
         <PackageReference Include="Unfucked.DateTime" Version="0.0.1-beta.2" />
