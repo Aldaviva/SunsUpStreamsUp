@@ -68,11 +68,12 @@
       },
       "Unfucked.DI": {
         "type": "Direct",
-        "requested": "[0.0.1-beta.6, )",
-        "resolved": "0.0.1-beta.6",
-        "contentHash": "Vlk1zw2aJRpbBEkpq1fwn5p5qwDIFIbaXfEOP5WlPzXp0HQKCkFGCG35pmeLMHzJuO71dbFAhNValQsb2/7rCA==",
+        "requested": "[0.0.1-beta.9, )",
+        "resolved": "0.0.1-beta.9",
+        "contentHash": "0rrIrORahSR0HbVaZXgoI7Ybl0N8fuo+oKru2lntopEYbwcJO5157dkUsuESDOQQB59mu6Ogwcr/ZA0hJNOWcA==",
         "dependencies": {
-          "Unfucked": "0.0.1-beta.5"
+          "JetBrains.Annotations": "2025.2.2",
+          "Unfucked": "0.0.1-beta.15"
         }
       },
       "Unfucked.OBS": {
@@ -93,6 +94,11 @@
           "System.Text.Encodings.Web": "9.0.3",
           "TwitchApi.Net": "3.2.0"
         }
+      },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2025.2.2",
+        "contentHash": "0X56ZRizuHdrnPpgXjWV7f2tQO1FlQg5O1967OGKnI/4ZRNOK642J8L7brM1nYvrxTTU5TP1yRyXLRLaXLPQ8A=="
       },
       "Macross.Json.Extensions": {
         "type": "Transitive",
@@ -419,8 +425,8 @@
       },
       "Unfucked": {
         "type": "Transitive",
-        "resolved": "0.0.1-beta.5",
-        "contentHash": "2vpz1u3knWf7F7QCbns1lbEps0wWWeJa1d5lGHiSQ9JTK3YBvd6Nn1jh3AzNTxSLppb9SAPUijLKP63kI3DdvA=="
+        "resolved": "0.0.1-beta.15",
+        "contentHash": "Uti7ptj3MPmQTQfuKJ25njSbfc0cPPU2GqH7PP4XREXQwLSsmr/NIEhTIgP/EecqhwEUGE5vr2s4GngKT27abQ=="
       }
     },
     "net8.0/linux-arm": {
