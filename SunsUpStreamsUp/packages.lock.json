@@ -77,11 +77,11 @@
       },
       "Unfucked.OBS": {
         "type": "Direct",
-        "requested": "[0.0.1-beta.1, )",
-        "resolved": "0.0.1-beta.1",
-        "contentHash": "IvVxrDS+yD4ZdmyYpgKwlLmDUHL717w4bp6eINrq220wkncYSr36+Z9WTc6u+6QWj3wuClAv3HLN6RBV55pmrQ==",
+        "requested": "[0.0.1-beta.2, )",
+        "resolved": "0.0.1-beta.2",
+        "contentHash": "cpHl9Guukv8sK/atDsOT8dyxNZDTFJQ3Qe72D1JCm8aCmm1qWFRzc9dQuTh7eE3pEO58H7M0MVMO/9LQRxqJ8A==",
         "dependencies": {
-          "OBSClient": "2.1.1"
+          "OBSClient": "3.0.0"
         }
       },
       "Unfucked.Twitch": {
@@ -363,8 +363,11 @@
       },
       "OBSClient": {
         "type": "Transitive",
-        "resolved": "2.1.1",
-        "contentHash": "ozdgutUCuDVFi18DJkGndp7p+OODv51nnH8Kq4FEhNOVOWJHd/aWfgRo3hDQvN8ZJYiR1PliKfEyvRCqkuGUIQ=="
+        "resolved": "3.0.0",
+        "contentHash": "jbyWhSugATKAjm7WBKmV9Bz2ScPPv+iJamnese3gDwAA1sxn3r5lpKvbjNu1aun1AzoTORK5ay77Yg+raR/lzQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging": "9.0.9"
+        }
       },
       "System.CodeDom": {
         "type": "Transitive",
