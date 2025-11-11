@@ -18,9 +18,9 @@ public interface SolarEventEmitter: IHostedService, IDisposable {
 }
 
 public class SolarEventEmitterImpl(
-    IClock                         unzonedClock,
-    TimeProvider                   timeProvider,
-    IOptions<GeographicOptions>    options,
+    IClock unzonedClock,
+    TimeProvider timeProvider,
+    IOptions<GeographicOptions> options,
     ILogger<SolarEventEmitterImpl> logger
 ): BackgroundService, SolarEventEmitter {
 
@@ -57,7 +57,7 @@ public class SolarEventEmitterImpl(
                 cts.ThrowIfCancellationRequested();
 
                 Duration delay = sunlightChange.Time - clock.GetCurrentZonedDateTime();
-                logger.LogDebug(@"Waiting {delay:h\h\ mm\m}, when {brightness} will start at {time:h:mm tt}", delay, sunlightChange.NewSunlightLevel.ToString(true), sunlightChange.Time);
+                logger.Debug(@"Waiting {delay:h\h\ mm\m}, when {brightness} will start at {time:h:mm tt}", delay, sunlightChange.NewSunlightLevel.ToString(true), sunlightChange.Time);
                 waitingForSolarElevationChange?.Invoke(this, sunlightChange);
                 await LongDelay(delay, timeProvider, cts);
 

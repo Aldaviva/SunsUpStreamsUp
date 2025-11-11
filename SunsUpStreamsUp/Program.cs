@@ -6,7 +6,7 @@ using SunsUpStreamsUp;
 using SunsUpStreamsUp.Logic;
 using SunsUpStreamsUp.Options;
 using Twitch.Net;
-using Unfucked;
+using Unfucked.DI;
 using Unfucked.OBS;
 using Unfucked.Twitch;
 
@@ -20,8 +20,7 @@ builder.Services
     .Configure<StreamOptions>(builder.Configuration.GetSection("stream"))
     .Configure<GeographicOptions>(builder.Configuration.GetSection("geography"))
     .AddHostedService<StreamManager>()
-    .AddSingleton<SolarEventEmitter, SolarEventEmitterImpl>()
-    .AddHostedService(s => s.GetRequiredService<SolarEventEmitter>())
+    .AddHostedService<SolarEventEmitterImpl>(SuperRegistration.INTERFACES)
     .AddSingleton<IClock>(SystemClock.Instance)
     .AddSingleton<IObsClientFactory, ObsClientFactory>()
     .AddSingleton(TimeProvider.System)

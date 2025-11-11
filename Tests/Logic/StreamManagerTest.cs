@@ -52,11 +52,14 @@ public class StreamManagerTest: IDisposable {
 
     [Fact]
     public async Task authFailed() {
-        A.CallTo(() => obsFactory.Connect(A<Uri>._, A<string>._, A<CancellationToken>._)).Returns<IObsClient?>(null);
+        A.CallTo(() => obsFactory.Connect(A<Uri>._, A<string>._, A<CancellationToken>._))
+            .Returns<IObsClient?>(null).Once().Then.Throws<TestException>();
 
         Func<Task> thrower = async () => await streamManager.StartAsync(cts.Token);
-        await thrower.Should().ThrowAsync<ObsFailedToConnect>();
+        await thrower.Should().ThrowAsync<TestException>();
     }
+
+    private class TestException: Exception;
 
     [Theory]
     [InlineData(SunlightLevel.Daylight)]

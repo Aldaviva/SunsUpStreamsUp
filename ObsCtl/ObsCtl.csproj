@@ -21,7 +21,7 @@
 
     <ItemGroup>
         <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
-        <PackageReference Include="Unfucked.OBS" Version="0.0.1-beta.1" />
+        <PackageReference Include="Unfucked.OBS" Version="0.0.1-beta.3" />
     </ItemGroup>
 
 </Project>
