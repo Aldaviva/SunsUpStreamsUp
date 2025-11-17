@@ -6,10 +6,7 @@ using OBSStudioClient.Responses;
 using SolCalc.Data;
 using SunsUpStreamsUp.Options;
 using System.ComponentModel;
-using Twitch.Net.Models;
-using Twitch.Net.Models.Responses;
 using Unfucked.OBS;
-using Unfucked.Twitch;
 
 namespace Tests.Logic;
 
@@ -19,12 +16,11 @@ public class StreamManagerTest: IDisposable {
     private readonly SolarEventEmitter       solarEventEmitter = A.Fake<SolarEventEmitter>();
     private readonly IObsClientFactory       obsFactory        = A.Fake<IObsClientFactory>();
     private readonly IObsClient              obs               = A.Fake<IObsClient>();
-    private readonly ITwitchApi              twitch            = A.Fake<ITwitchApi>();
     private readonly StreamOptions           options           = new() { obsHostname = "host", obsPassword = "pass", obsPort = 12345 };
     private readonly CancellationTokenSource cts               = new();
 
     public StreamManagerTest() {
-        streamManager = new StreamManager(solarEventEmitter, obsFactory, twitch, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
+        streamManager = new StreamManager(solarEventEmitter, obsFactory, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
 
         A.CallTo(() => obsFactory.Connect(A<Uri>._, A<string>._, A<CancellationToken>._)).Returns(obs);
 
@@ -116,34 +112,6 @@ public class StreamManagerTest: IDisposable {
         solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDusk));
 
         A.CallTo(() => obs.StopStream()).MustHaveHappenedOnceExactly();
-    }
-
-    [Fact]
-    public async Task dontStartStreamIfAlreadyBroadcastingElsewhere() {
-        options.twitchUsername        = "a";
-        options.replaceExistingStream = false;
-
-        A.CallTo(() => twitch.Streams.GetStreamsWithUserLogins(A<string[]>._, An<int>._, A<string[]>._, A<string>._, A<string>._))
-            .Returns(new HelixPaginatedResponse<HelixStream> { Data = [new HelixStream()] });
-
-        await streamManager.StartAsync(cts.Token);
-
-        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDawn));
-
-        A.CallTo(() => obs.StartStream()).MustNotHaveHappened();
-    }
-
-    [Fact]
-    public async Task dontCrashDuringInternetOutage() {
-        options.twitchUsername        = "a";
-        options.replaceExistingStream = false;
-
-        A.CallTo(() => twitch.Streams.GetStreamsWithUserLogins(A<string[]>._, An<int>._, A<string[]>._, A<string>._, A<string>._))
-            .ThrowsAsync(new HttpRequestException());
-
-        await streamManager.StartAsync(cts.Token);
-
-        solarEventEmitter.solarElevationChanged += Raise.With(new SunlightChange(default, SolarTimeOfDay.CivilDawn));
     }
 
     [Fact]

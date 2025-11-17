@@ -10,9 +10,10 @@ namespace Tests.Logic;
 
 public class SolarEventEmitterTest {
 
-    private static readonly DateTimeZone      LOS_ANGELES = DateTimeZoneProviders.Tzdb["America/Los_Angeles"];
-    private static readonly DateTimeZone      BERLIN      = DateTimeZoneProviders.Tzdb["Europe/Berlin"];
-    private static readonly GeographicOptions OPTIONS     = new() { latitude = 37.35, longitude = -121.95, timeZone = LOS_ANGELES.Id, minimumSunlightLevel = SunlightLevel.CivilTwilight };
+    private static readonly DateTimeZone LOS_ANGELES = DateTimeZoneProviders.Tzdb["America/Los_Angeles"];
+    private static readonly DateTimeZone BERLIN      = DateTimeZoneProviders.Tzdb["Europe/Berlin"];
+
+    private static GeographicOptions options = new() { latitude = 37.35, longitude = -121.95, timeZone = LOS_ANGELES.Id, minimumSunlightLevel = SunlightLevel.CivilTwilight };
 
     private SolarEventEmitterImpl solarEventEmitter = null!;
 
@@ -26,7 +27,7 @@ public class SolarEventEmitterTest {
 
     private void init() {
         solarEventEmitter?.Dispose();
-        solarEventEmitter = new SolarEventEmitterImpl(clock, timeProvider, new OptionsWrapper<GeographicOptions>(OPTIONS), new NullLogger<SolarEventEmitterImpl>());
+        solarEventEmitter = new SolarEventEmitterImpl(clock, timeProvider, new OptionsWrapper<GeographicOptions>(options), new NullLogger<SolarEventEmitterImpl>());
     }
 
     [Theory]
@@ -54,7 +55,7 @@ public class SolarEventEmitterTest {
     public async Task fireCivilDuskEvent() {
         // 1 minute before civil twilight ends and nautical twilight begins
         ZonedDateTime lastMinuteOfCivilDusk = new LocalDateTime(2024, 1, 23, 12 + 5, 50, 0).InZoneStrictly(LOS_ANGELES);
-        SunlightCalculator.GetSunlightAt(lastMinuteOfCivilDusk, OPTIONS.latitude, OPTIONS.longitude).Should().Be(SunlightLevel.CivilTwilight, "precondition");
+        SunlightCalculator.GetSunlightAt(lastMinuteOfCivilDusk, options.latitude, options.longitude).Should().Be(SunlightLevel.CivilTwilight, "precondition");
 
         A.CallTo(() => clock.GetCurrentInstant()).Returns(lastMinuteOfCivilDusk.ToInstant());
 
@@ -84,9 +85,11 @@ public class SolarEventEmitterTest {
 
     [Fact]
     public async Task fireMultipleDaysOfEvents() {
-        OPTIONS.latitude  = 78.92;
-        OPTIONS.longitude = 11.93;
-        OPTIONS.timeZone  = BERLIN.Id;
+        options = options with {
+            latitude = 78.92,
+            longitude = 11.93,
+            timeZone = BERLIN.Id
+        };
         init();
 
         LocalDate firstDay = new(2024, 9, 9);
@@ -112,16 +115,16 @@ public class SolarEventEmitterTest {
         await solarEventEmitter.StartAsync(cts.Token);
         try {
             await solarEventEmitter.ExecuteTask!;
-        } catch (OperationCanceledException) { }
+        } catch (OperationCanceledException) {}
 
         IEventRecording actualEvents = eventMonitor.GetRecordingFor(nameof(SolarEventEmitter.solarElevationChanged));
         IList<SunlightChange> expectedEvents = [
-            new SunlightChange(new LocalDateTime(2024, 9, 10, 0, 28, 32).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDusk),
-            new SunlightChange(new LocalDateTime(2024, 9, 10, 1, 53).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDawn),
-            new SunlightChange(new LocalDateTime(2024, 9, 10, 12 + 11, 57).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDusk),
-            new SunlightChange(new LocalDateTime(2024, 9, 11, 2, 24).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDawn),
-            new SunlightChange(new LocalDateTime(2024, 9, 11, 12 + 11, 35).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDusk),
-            new SunlightChange(new LocalDateTime(2024, 9, 12, 2, 46).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDawn)
+            new(new LocalDateTime(2024, 9, 10, 0, 28, 32).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDusk),
+            new(new LocalDateTime(2024, 9, 10, 1, 53).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDawn),
+            new(new LocalDateTime(2024, 9, 10, 12 + 11, 57).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDusk),
+            new(new LocalDateTime(2024, 9, 11, 2, 24).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDawn),
+            new(new LocalDateTime(2024, 9, 11, 12 + 11, 35).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDusk),
+            new(new LocalDateTime(2024, 9, 12, 2, 46).InZoneStrictly(BERLIN), SolarTimeOfDay.CivilDawn)
         ];
 
         // This is equivalent to .Should().Equal(), but this loop doesn't produce gigantic unreadable outputs when the list has more than a few items in it
