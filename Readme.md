@@ -18,8 +18,8 @@
 - [Open Broadcaster Software Studio ≥ 28](https://obsproject.com/download)
 - [.NET ≥ 8 Runtime x64 or ARM64](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - Operating system
-    - [Linux x64 distribution and version supported by .NET Runtime](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 40)
-    - [Windows ≥ 10 or Server ≥ 2012, x64](https://learn.microsoft.com/en-us/dotnet/core/install/windows)
+    - [Linux, x64 or ARM64 or ARM32](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 43 x64)
+    - [Windows ≥ 10 or Server ≥ 2012, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/windows)
     - [Mac OS ≥ 12, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
 ## Installation
