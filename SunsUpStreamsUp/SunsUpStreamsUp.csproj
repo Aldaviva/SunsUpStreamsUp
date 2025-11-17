@@ -10,6 +10,7 @@
         <LangVersion>latest</LangVersion>
         <RollForward>latestMajor</RollForward>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RestoreEnablePackagePruning>true</RestoreEnablePackagePruning>
         <Version>1.2.0</Version>
         <Authors>Ben Hutchison</Authors>
         <Copyright>© 2025 $(Authors)</Copyright>
@@ -20,23 +21,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
-        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.0.0" />
-        <PackageReference Include="SolCalc" Version="1.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="[8.0.1,9)" />
+        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.0.1" />
+        <PackageReference Include="SolCalc" Version="1.0.1" />
         <PackageReference Include="ThrottleDebounce" Version="3.0.0-beta5" />
         <PackageReference Include="Unfucked.DateTime" Version="0.0.1-beta.3" />
-        <PackageReference Include="Unfucked.DI" Version="0.0.1-beta.11" />
+        <PackageReference Include="Unfucked.DI" Version="0.0.1-beta.12" />
         <PackageReference Include="Unfucked.OBS" Version="0.0.1-beta.3" />
-        <PackageReference Include="Unfucked.Twitch" Version="0.0.1-beta.2" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\Readme.md;..\.github*\**" />
-        <None Update="appsettings.*.json;appsettings.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Tests;Performance" />
     </ItemGroup>
+
+    <Import Project="UnfuckProvidedDependencies.props" />
 
 </Project>

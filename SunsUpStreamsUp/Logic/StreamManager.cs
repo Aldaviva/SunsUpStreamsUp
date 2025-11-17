@@ -6,18 +6,14 @@ using SolCalc;
 using SolCalc.Data;
 using SunsUpStreamsUp.Options;
 using ThrottleDebounce.Retry;
-using Twitch.Net.Models;
-using Twitch.Net.Models.Responses;
 using Unfucked.DateTime;
 using Unfucked.OBS;
-using Unfucked.Twitch;
 
 namespace SunsUpStreamsUp.Logic;
 
 public class StreamManager(
     SolarEventEmitter solarEventEmitter,
     IObsClientFactory obsClientFactory,
-    ITwitchApi? twitch,
     IClock clock,
     ILogger<StreamManager> logger,
     IOptions<StreamOptions> options
@@ -38,7 +34,8 @@ public class StreamManager(
                 }, new RetryOptions {
                     MaxOverallDuration = (Minutes) 5,
                     Delay              = Delays.Linear((Seconds) 1, (Seconds) 1, (Seconds) 10),
-                    BeforeRetry        = (_, i) => logger.Warn("Failed to connect to OBS, retrying #{attempt:N0}", i + 1),
+                    AfterFailure       = (e, _) => logger.Warn("Failed to connect to OBS: {msg}", e.MessageChain()),
+                    BeforeRetry        = (_, i) => logger.Warn("Retrying #{attempt:N0}", i + 1),
                     IsRetryAllowed     = (e, _) => e is ObsFailedToConnect,
                     CancellationToken  = cancellationToken
                 });
@@ -66,16 +63,15 @@ public class StreamManager(
             }
 
             bool          isLocalObsStreamingNow = (await obs.GetStreamStatus()).OutputActive;
-            Task<bool>    isRemotelyStreamingNow = isChannelLive();
             SunlightLevel currentSunlight        = solarEventEmitter.currentSunlight;
             bool          shouldBeStreamingNow   = currentSunlight >= solarEventEmitter.minimumSunlightLevel;
 
             logger.Info("The sunlight level is {light}", currentSunlight.ToString(true));
 
-            if (shouldBeStreamingNow && !isLocalObsStreamingNow && !await isRemotelyStreamingNow) {
+            if (shouldBeStreamingNow && !isLocalObsStreamingNow) {
                 logger.Info("Starting stream now because it should have already been live before this program launched, since it is currently {light}", currentSunlight.ToString(true));
                 await obs.StartStream();
-            } else if (isLocalObsStreamingNow || await isRemotelyStreamingNow) {
+            } else if (isLocalObsStreamingNow) {
                 logger.Info("Stream is already live, leaving it running until {timeOfDay}", solarEventEmitter.minimumSunlightLevel.GetEnd(false).ToString(true));
             } else {
                 logger.Info("Stream is offline, not starting it until {timeOfDay}", solarEventEmitter.minimumSunlightLevel.GetStart(true).ToString(true));
@@ -83,7 +79,7 @@ public class StreamManager(
 
             solarEventEmitter.waitingForSolarElevationChange += onWaitForSolarElevationChange;
             solarEventEmitter.solarElevationChanged          += onSolarElevationChange;
-        } catch (TaskCanceledException) { }
+        } catch (TaskCanceledException) {}
     }
 
     public Task StopAsync(CancellationToken cancellationToken) {
@@ -109,31 +105,8 @@ public class StreamManager(
             } catch (ObsResponseException ex) when (ex.ErrorCode == RequestStatusCode.OutputNotRunning) {
                 logger.Debug("Tried to stop stream but it was already stopped, doing nothing");
             }
-        } else if (!await isChannelLive()) {
+        } else {
             await obs.StartStream();
-        } else {
-            logger.Info("While attempting to start the stream, it was already live on another computer, so not interrupting the existing stream.");
-        }
-    }
-
-    private async Task<bool> isChannelLive() {
-        string? twitchUsername = options.Value.twitchUsername;
-        if (twitch != null && !options.Value.replaceExistingStream && twitchUsername.HasText()) {
-            logger.Trace("Checking if Twitch channel {username} is currently broadcasting from another computer", twitchUsername);
-            HelixPaginatedResponse<HelixStream> userStreams;
-            try {
-                userStreams = await twitch.Streams.GetStreamsWithUserLogins([twitchUsername], 1);
-            } catch (HttpRequestException e) {
-                logger.Warn(e, "Failed to get stream state of Twitch user {username}, assuming stream is offline", twitchUsername);
-                return false;
-            }
-
-            bool isLive = userStreams.Data.Length != 0;
-            logger.Trace("Twitch channel {channel} is currently {isLive}broadcasting from another computer", twitchUsername, isLive ? "" : "not ");
-            return isLive;
-        } else {
-            logger.Trace("No Twitch stream configured, so assuming the channel is not broadcasting from another computer");
-            return false;
         }
     }
 

@@ -55,10 +55,6 @@
 |`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, defaults to `"localhost"` for when OBS and this program are both installed on the same computer|
 |`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to `4455`. If OBS is running on a different computer, any firewall protecting it must allow inbound TCP connections to this port.|
 |`obsPassword`|string|OBS WebSocket server password you set or copied, not URL-encoded, defaults to `""` for when authentication is disabled|
-|`replaceExistingStream`|boolean|Set to `false` to only start a new stream if your channel is not already live, avoiding interruption of an existing broadcast, or `true` to always start the stream at the appointed time, even if that means hijacking the channel from a different broadcast. Defaults to `false`, which requires `twitchUsername`, `twitchClientId`, and `twitchClientSecret` to be provided in order to be effective. Set to `true` to disable this check, even if it's otherwise configured.|
-|`twitchUsername`|string|Your channel name on Twitch. Used when you want to avoid starting a new stream from OBS if you're already broadcasting to your channel from a different computer. Requires `twitchClientId` and `twitchClientSecret` to also be set. Defaults to `null` to always start a stream at the appointed time, even if the channel is already live.|
-|`twitchClientId`|string|Client ID you get after [creating a Twitch OAuth application](https://dev.twitch.tv/console/apps/create). The redirection URL can be `http://localhost`, and the Client Type must be Confidential. Defaults to `null` to always start a stream at the appointed time, even if the channel is already live.|
-|`twitchClientSecret`|string|Client secret you create on your Twitch application. Defaults to `null` to always start a stream at the appointed time, even if the channel is already live.|
 
 ### `logging`
 |Name|Values|Description|

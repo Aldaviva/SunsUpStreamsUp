@@ -10,6 +10,7 @@
         <RollForward>latestMajor</RollForward>
         <!-- <PublishAot>true</PublishAot> --> <!-- Enabling AOT causes the third-party OBSClient library to mysteriously hang forever when connecting to the OBS WebSocket server -->
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RestoreEnablePackagePruning>true</RestoreEnablePackagePruning>
         <Version>0.2.0</Version>
         <Authors>Ben Hutchison</Authors>
         <Copyright>© 2025 $(Authors)</Copyright>
