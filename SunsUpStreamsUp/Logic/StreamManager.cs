@@ -5,21 +5,34 @@ using OBSStudioClient.Exceptions;
 using SolCalc;
 using SolCalc.Data;
 using SunsUpStreamsUp.Options;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using ThrottleDebounce.Retry;
 using Unfucked.DateTime;
 using Unfucked.OBS;
 
 namespace SunsUpStreamsUp.Logic;
 
-public class StreamManager(
+public interface StreamManager: IDisposable, INotifyPropertyChanged {
+
+    bool isLive { get; }
+
+}
+
+public class StreamManagerImpl(
     SolarEventEmitter solarEventEmitter,
     IObsClientFactory obsClientFactory,
     IClock clock,
-    ILogger<StreamManager> logger,
+    ILogger<StreamManagerImpl> logger,
     IOptions<StreamOptions> options
-): IHostedService, IDisposable {
+): IHostedService, StreamManager {
 
     private IObsClient? obs;
+
+    public bool isLive {
+        get;
+        private set => setField(ref field, value);
+    }
 
     public async Task StartAsync(CancellationToken cancellationToken) {
         try {
@@ -73,6 +86,7 @@ public class StreamManager(
                 await obs.StartStream();
             } else if (isLocalObsStreamingNow) {
                 logger.Info("Stream is already live, leaving it running until {timeOfDay}", solarEventEmitter.minimumSunlightLevel.GetEnd(false).ToString(true));
+                isLive = true;
             } else {
                 logger.Info("Stream is offline, not starting it until {timeOfDay}", solarEventEmitter.minimumSunlightLevel.GetStart(true).ToString(true));
             }
@@ -102,11 +116,13 @@ public class StreamManager(
         if (!shouldStreamBeLive) {
             try {
                 await obs.StopStream();
+                isLive = false;
             } catch (ObsResponseException ex) when (ex.ErrorCode == RequestStatusCode.OutputNotRunning) {
                 logger.Debug("Tried to stop stream but it was already stopped, doing nothing");
             }
         } else {
             await obs.StartStream();
+            isLive = true;
         }
     }
 
@@ -122,6 +138,19 @@ public class StreamManager(
     public void Dispose() {
         dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void onPropertyChanged([CallerMemberName] string? propertyName = null) {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private bool setField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null) {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        onPropertyChanged(propertyName);
+        return true;
     }
 
 }

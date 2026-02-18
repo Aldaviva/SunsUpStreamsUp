@@ -12,7 +12,7 @@ namespace Tests.Logic;
 
 public class StreamManagerTest: IDisposable {
 
-    private readonly StreamManager           streamManager;
+    private readonly StreamManagerImpl       streamManager;
     private readonly SolarEventEmitter       solarEventEmitter = A.Fake<SolarEventEmitter>();
     private readonly IObsClientFactory       obsFactory        = A.Fake<IObsClientFactory>();
     private readonly IObsClient              obs               = A.Fake<IObsClient>();
@@ -20,7 +20,7 @@ public class StreamManagerTest: IDisposable {
     private readonly CancellationTokenSource cts               = new();
 
     public StreamManagerTest() {
-        streamManager = new StreamManager(solarEventEmitter, obsFactory, SystemClock.Instance, new NullLogger<StreamManager>(), new OptionsWrapper<StreamOptions>(options));
+        streamManager = new StreamManagerImpl(solarEventEmitter, obsFactory, SystemClock.Instance, new NullLogger<StreamManagerImpl>(), new OptionsWrapper<StreamOptions>(options));
 
         A.CallTo(() => obsFactory.Connect(A<Uri>._, A<string>._, A<CancellationToken>._)).Returns(obs);
 
