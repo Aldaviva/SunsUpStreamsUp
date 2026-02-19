@@ -20,10 +20,11 @@ builder.Services
     .Configure<SocialOptions>(builder.Configuration.GetSection("social"))
     .AddHostedService<StreamManagerImpl>(SuperRegistration.INTERFACES)
     .AddHostedService<SolarEventEmitterImpl>(SuperRegistration.INTERFACES)
-    .AddHostedService<BlueskyClientImpl>()
+    .AddHostedService<BlueskyClient>()
     .AddSingleton<IClock>(SystemClock.Instance)
     .AddSingleton<IObsClientFactory, ObsClientFactory>()
     .AddSingleton<IHttpClient, UnfuckedHttpClient>()
+    .AddSingleton<BlueskyAuthFilter>()
     .AddSingleton(TimeProvider.System);
 
 using IHost host = builder.Build();
