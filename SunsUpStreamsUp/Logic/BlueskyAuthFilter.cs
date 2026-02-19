@@ -86,25 +86,10 @@ public class BlueskyAuthFilter(IHttpClient http, IOptions<SocialOptions> options
 
             await refresh(ct);
 
-            IEnumerable<KeyValuePair<string, string>> replayedHeaders = originalRequest.Headers
-                .Where(header => !header.Key.Equals(HttpHeaders.AUTHORIZATION, StringComparison.OrdinalIgnoreCase))
-                .SelectMany(originalPair => originalPair.Value.Select(originalValue => new KeyValuePair<string, string>(originalPair.Key, originalValue)))
-                .Append(new KeyValuePair<string, string>(HttpHeaders.AUTHORIZATION, accessToken!));
+            originalRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            HttpRequest replayedRequest = await HttpRequest.Copy(originalRequest);
 
-            HttpContent? replayedRequestBody = null;
-            if (originalRequest.Content is {} originalRequestBody) {
-                MemoryStream replayedRequestBodyStream = new();
-                // CopyToAsync may fail if the original stream isn't seekable, in which case we may want to buffer all request bodies before their original request is sent
-                await originalRequestBody.CopyToAsync(replayedRequestBodyStream, ct);
-                replayedRequestBody = new StreamContent(replayedRequestBodyStream);
-                foreach (KeyValuePair<string, IEnumerable<string>> originalRequestBodyHeader in originalRequestBody.Headers) {
-                    replayedRequestBody.Headers.Add(originalRequestBodyHeader.Key, originalRequestBodyHeader.Value);
-                }
-            }
-
-            HttpRequest         replayedRequest  = new(originalRequest.Method, originalRequest.RequestUri, replayedHeaders, replayedRequestBody, null);
             HttpResponseMessage replayedResponse = await http.SendAsync(replayedRequest, ct);
-
             return replayedResponse;
         } else {
             return originalResponse;
