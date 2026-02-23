@@ -16,11 +16,11 @@
 
 ## Prerequisites
 - [Open Broadcaster Software Studio ≥ 28](https://obsproject.com/download)
-- [.NET ≥ 8 Runtime x64 or ARM64](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [.NET ≥ 10 Runtime x64 or ARM64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 - Operating system
     - [Linux, x64 or ARM64 or ARM32](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 43 x64)
     - [Windows ≥ 10 or Server ≥ 2012, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/windows)
-    - [Mac OS ≥ 12, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
+    - [Mac OS ≥ 14, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
 ## Installation
 1. Download the [latest release ZIP file](https://github.com/Aldaviva/SunsUpStreamsUp/releases/latest) for your operating system and CPU architecture.
@@ -47,19 +47,26 @@
 |`latitude`|[−90.0,90.0]|Decimal degrees of your location north (+) or south (−) of the equator, used to determine the local time of sunrise and sunset|
 |`longitude`|(−180.0,180.0]|Decimal degrees of your location east (+) or west (−) of the prime meridian, used to determine the local time of sunrise and sunset|
 |`timeZone`|IANA zone ID|Time zone for your location, from [IANA/Olson tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (*e.g.* `"America/Los_Angeles"`), or omit this to use the computer's local zone|
-|`minimumSunlightLevel`|[`SunlightLevel`](https://github.com/Aldaviva/SolCalc/blob/master/SolCalc/Data/SunlightLevel.cs)|Stream will be up whenever the sunlight is at least this bright; one of `Daylight` (brightest), `CivilTwilight` (default, a little dark), `NauticalTwilight` (medium dark), `AstronomicalTwilight` (very dark), or `Night` (useless: always live, totally dark). For example, if you set this to `CivilTwilight`, the stream will start at civil dawn, continue through daylight, and stop at civil dusk.|
+|`minimumSunlightLevel`|[`SunlightLevel`](https://github.com/Aldaviva/SolCalc/blob/master/SolCalc/Data/SunlightLevel.cs)|Stream will be up whenever the sunlight is at least this bright; one of `Daylight` (brightest), `CivilTwilight` (default, a little dark), `NauticalTwilight` (medium dark), `AstronomicalTwilight` (very dark), or `Night` (useless: always live, totally dark). For example, if you set this to `CivilTwilight`, the stream will start at civil dawn, continue through sunrise and sunset, and stop at civil dusk.|
 
 ### `stream`
 |Name|Values|Description|
 |-|-|-|
-|`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, defaults to `"localhost"` for when OBS and this program are both installed on the same computer|
+|`obsHostname`|FQDN or IP address|The hostname of the computer running OBS, defaults to `localhost` for when OBS and this program are both installed on the same computer|
 |`obsPort`|[1,65535)|TCP port of the OBS WebSocket server, defaults to `4455`. If OBS is running on a different computer, any firewall protecting it must allow inbound TCP connections to this port.|
-|`obsPassword`|string|OBS WebSocket server password you set or copied, not URL-encoded, defaults to `""` for when authentication is disabled|
+|`obsPassword`|`string`|OBS WebSocket server password you set or copied, not URL-encoded, defaults to the empty string for when authentication is disabled|
+
+### `social`
+|Name|Values|Description|
+|-|-|-|
+|`twitchUsername`|`string`|Your [Twitch username](https://www.twitch.tv/settings/profile), optionally used to link to your channel in a Bluesky live status|
+|`blueskyUsername`|`string`|Your fully-qualified [Bluesky handle](https://bsky.app/settings/account), optionally used to set your Bluesky live status|
+|`blueskyPassword`|`string`|A [Bluesky app password](https://bsky.app/settings/app-passwords) for your account, optionally used to set your Bluesky live status|
 
 ### `logging`
 |Name|Values|Description|
 |-|-|-|
-|`logLevel`|object|You may optionally [change the logging levels of this program](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line#configure-logging-without-code)|
+|`logLevel`|`object`|You may optionally [change the logging levels of this program](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line#configure-logging-without-code)|
 
 
 ## Running

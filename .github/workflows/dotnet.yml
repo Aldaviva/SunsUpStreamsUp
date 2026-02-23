@@ -30,7 +30,7 @@ jobs:
 
     steps:
     - name: Clone
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
 
     - name: Initialize test reporting
       uses: testspace-com/setup-testspace@v1
@@ -39,7 +39,7 @@ jobs:
         domain: ${{ github.repository_owner }}
 
     - name: Restore from cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
@@ -83,11 +83,11 @@ jobs:
       run: dotnet publish ${{ env.ProjectName }} --no-build --configuration Release -p:PublishSingleFile=true --runtime ${{ matrix.TargetPlatform }} --no-self-contained
       
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.ProjectName }}-${{ matrix.TargetPlatform }}
         path: |
-          ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/sunsupstreamsup
-          ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/sunsupstreamsup.exe
-          ${{ env.ProjectName }}/bin/Release/net8.0/${{ matrix.TargetPlatform }}/publish/appsettings.json
+          ${{ env.ProjectName }}/bin/Release/net10.0/${{ matrix.TargetPlatform }}/publish/sunsupstreamsup
+          ${{ env.ProjectName }}/bin/Release/net10.0/${{ matrix.TargetPlatform }}/publish/sunsupstreamsup.exe
+          ${{ env.ProjectName }}/bin/Release/net10.0/${{ matrix.TargetPlatform }}/publish/appsettings.json
         if-no-files-found: error

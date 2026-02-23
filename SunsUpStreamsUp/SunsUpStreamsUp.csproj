@@ -10,8 +10,7 @@
         <LangVersion>latest</LangVersion>
         <RollForward>latestMajor</RollForward>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <RestoreEnablePackagePruning>true</RestoreEnablePackagePruning>
-        <Version>1.3.0</Version>
+        <Version>2.0.0</Version>
         <Authors>Ben Hutchison</Authors>
         <Copyright>© 2026 $(Authors)</Copyright>
         <Company>$(Authors)</Company>
@@ -23,7 +22,8 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.16.0" />
-        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.0.1" />
+        <PackageReference Include="NodaTime" Version="3.3.0" />
+        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.1.0" />
         <PackageReference Include="SolCalc" Version="1.0.1" />
         <PackageReference Include="ThrottleDebounce" Version="3.0.0-beta5" />
         <PackageReference Include="Unfucked.DateTime" Version="0.0.1-beta.3" />
