@@ -26,7 +26,7 @@
         <PackageReference Include="RuntimeUpgradeNotifier" Version="1.1.0" />
         <PackageReference Include="SolCalc" Version="1.0.1" />
         <PackageReference Include="ThrottleDebounce" Version="3.0.0-beta5" />
-        <PackageReference Include="Unfucked.DateTime" Version="0.0.1-beta.3" />
+        <PackageReference Include="Unfucked.DateTime" Version="0.0.1-beta.4" />
         <PackageReference Include="Unfucked.DI" Version="0.0.1-beta.12" />
         <PackageReference Include="Unfucked.HTTP" Version="0.0.1-beta.24" />
         <PackageReference Include="Unfucked.OBS" Version="0.0.1-beta.3" />
