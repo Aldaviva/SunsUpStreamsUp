@@ -2,7 +2,7 @@ using SolCalc.Data;
 
 namespace SunsUpStreamsUp.Options;
 
-public record GeographicOptions {
+public sealed record GeographicOptions {
 
     public double latitude { get; init; }
     public double longitude { get; init; }

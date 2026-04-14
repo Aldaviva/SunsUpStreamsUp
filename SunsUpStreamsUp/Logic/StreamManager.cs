@@ -49,7 +49,7 @@ public class StreamManagerImpl(
                     Delay              = Delays.Linear((Seconds) 1, (Seconds) 1, (Seconds) 10),
                     AfterFailure       = (e, _) => logger.Warn("Failed to connect to OBS: {msg}", e.MessageChain()),
                     BeforeRetry        = (_, i) => logger.Warn("Retrying #{attempt:N0}", i + 1),
-                    IsRetryAllowed     = (e, _) => e is ObsFailedToConnect,
+                    IsRetryAllowed     = static (e, _) => e is ObsFailedToConnect,
                     CancellationToken  = cancellationToken
                 });
             } catch (TaskCanceledException) {

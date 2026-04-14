@@ -16,7 +16,7 @@ using HttpHeaders = Unfucked.HTTP.HttpHeaders;
 
 namespace SunsUpStreamsUp.Logic;
 
-public class BlueskyAuthFilter(IHttpClient http, IOptions<SocialOptions> options, IClock clock, ILogger<BlueskyAuthFilter> logger): ClientRequestFilter, ClientResponseFilter {
+public sealed class BlueskyAuthFilter(IHttpClient http, IOptions<SocialOptions> options, IClock clock, ILogger<BlueskyAuthFilter> logger): ClientRequestFilter, ClientResponseFilter {
 
     private static readonly PropertyKey<bool> IS_AUTH_REQUEST = new($"{nameof(BlueskyAuthFilter)}.{nameof(IS_AUTH_REQUEST)}");
     private static readonly Duration          EARLY_REFRESH   = (Minutes) 5;
@@ -50,7 +50,7 @@ public class BlueskyAuthFilter(IHttpClient http, IOptions<SocialOptions> options
         JsonObject authResponse = await webTarget
             .Path("com.atproto.server.refreshSession")
             .Property(IS_AUTH_REQUEST, true)
-            .Header(HttpHeaders.AUTHORIZATION, "Bearer " + refreshToken)
+            .Header(HttpHeaders.Authorization, "Bearer " + refreshToken)
             .Post<JsonObject>(null, ct);
 
         handleAuthResponse(authResponse);
@@ -97,7 +97,7 @@ public class BlueskyAuthFilter(IHttpClient http, IOptions<SocialOptions> options
     }
 
     private bool canAuthenticate(FilterContext context) =>
-        username.HasLength() && password.HasLength() && (!(context.Configuration?.Property(IS_AUTH_REQUEST, out bool isAuthRequest) ?? false) || !isAuthRequest);
+        username.HasLength && password.HasLength && (!(context.Configuration?.Property(IS_AUTH_REQUEST, out bool isAuthRequest) ?? false) || !isAuthRequest);
 
     private void handleAuthResponse(JsonObject authResponse) {
         accessToken           = authResponse["accessJwt"]!.GetValue<string>();

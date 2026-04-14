@@ -12,7 +12,7 @@ using Timer = System.Timers.Timer;
 
 namespace SunsUpStreamsUp.Logic;
 
-public class BlueskyClient: IHostedService, IDisposable {
+public sealed class BlueskyClient: IHostedService, IDisposable {
 
     private static readonly Duration MAX_STATUS_DURATION = (Hours) 4;
 
@@ -29,13 +29,13 @@ public class BlueskyClient: IHostedService, IDisposable {
         this.options    = options;
         this.logger     = logger;
 
-        isEnabled = options.Value.blueskyUsername.HasText() && options.Value.blueskyPassword.HasText() && options.Value.twitchUsername.HasText();
+        isEnabled = options.Value.blueskyUsername.HasText && options.Value.blueskyPassword.HasText && options.Value.twitchUsername.HasText;
 
         blueskyTarget = http.Target("https://bsky.social/xrpc/").Register(authFilter);
 
         alreadyLiveRetryOptions = new AsyncRetryOptions {
             MaxAttempts    = 2,
-            IsRetryAllowed = async (e, _) => e is BadRequestException,
+            IsRetryAllowed = static (e, _) => Task.FromResult(e is BadRequestException),
             AfterFailure   = async (_, _) => await goDead()
         };
 

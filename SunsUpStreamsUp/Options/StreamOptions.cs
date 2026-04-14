@@ -1,6 +1,6 @@
 namespace SunsUpStreamsUp.Options;
 
-public record StreamOptions {
+public sealed record StreamOptions {
 
     public string obsHostname { get; init; } = "localhost";
     public ushort obsPort { get; init; } = 4455;
