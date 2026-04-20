@@ -103,7 +103,6 @@ public sealed class BlueskyClient: IHostedService, IDisposable {
 
     public void Dispose() {
         reapplyStatusTimer.Dispose();
-        GC.SuppressFinalize(this);
     }
 
     // language=json

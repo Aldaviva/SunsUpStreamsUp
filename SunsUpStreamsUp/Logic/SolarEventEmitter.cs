@@ -44,7 +44,7 @@ public sealed class SolarEventEmitterImpl(
                 Duration delay = sunlightChange.Time - clock.GetCurrentZonedDateTime();
                 logger.Debug(@"Waiting {delay:h\h\ mm\m}, when {brightness} will start at {time:h:mm tt}", delay, sunlightChange.NewSunlightLevel.ToString(true), sunlightChange.Time);
                 waitingForSolarElevationChange?.Invoke(this, sunlightChange);
-                await Task.DelayLong(delay.ToTimeSpan(), timeProvider, cts);
+                await Task.LongDelay(delay.ToTimeSpan(), timeProvider, cts);
 
                 solarElevationChanged?.Invoke(this, sunlightChange);
             }
