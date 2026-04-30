@@ -8,6 +8,8 @@ using Unfucked.DI;
 using Unfucked.HTTP;
 using Unfucked.OBS;
 
+Version.PrintProgramVersionAndExitIfRequested();
+
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.Configuration.AlsoSearchForJsonFilesInExecutableDirectory();

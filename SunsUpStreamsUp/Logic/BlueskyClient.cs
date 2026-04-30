@@ -8,6 +8,7 @@ using ThrottleDebounce.Retry;
 using Unfucked.DateTime;
 using Unfucked.HTTP;
 using Unfucked.HTTP.Exceptions;
+using Unfucked.HTTP.Serialization;
 using Timer = System.Timers.Timer;
 
 namespace SunsUpStreamsUp.Logic;
@@ -22,7 +23,7 @@ public sealed class BlueskyClient: IHostedService, IDisposable {
     private readonly ILogger<BlueskyClient>  logger;
     private readonly bool                    isEnabled;
     private readonly AsyncRetryOptions       alreadyLiveRetryOptions;
-    private readonly Timer                   reapplyStatusTimer = new(MAX_STATUS_DURATION.Minus((Minutes) 5).ToTimeSpan()) { AutoReset = true, Enabled = false };
+    private readonly Timer                   reapplyStatusTimer = new((MAX_STATUS_DURATION - (Minutes) 5).ToTimeSpan()) { AutoReset = true, Enabled = false };
 
     public BlueskyClient(StreamManager streamManager, IHttpClient http, BlueskyAuthFilter authFilter, IOptions<SocialOptions> options, ILogger<BlueskyClient> logger) {
         this.authFilter = authFilter;
@@ -34,9 +35,10 @@ public sealed class BlueskyClient: IHostedService, IDisposable {
         blueskyTarget = http.Target("https://bsky.social/xrpc/").Register(authFilter);
 
         alreadyLiveRetryOptions = new AsyncRetryOptions {
-            MaxAttempts    = 2,
-            IsRetryAllowed = static (e, _) => Task.FromResult(e is BadRequestException),
-            AfterFailure   = async (_, _) => await goDead()
+            MaxOverallDuration = (Minutes) 20,
+            Delay              = Delays.Exponential((Seconds) 1, max: (Minutes) 3),
+            IsRetryAllowed     = static (e, _) => Task.FromResult(e is BadRequestException or ServiceUnavailableException),
+            AfterFailure       = async (_, _) => await goDead()
         };
 
         streamManager.PropertyChanged += async (_, e) => {
@@ -73,14 +75,13 @@ public sealed class BlueskyClient: IHostedService, IDisposable {
         body["record"]!["createdAt"]                    = JsonValue.Create(DateTime.UtcNow);
         body["record"]!["durationMinutes"]              = JsonValue.Create((int) MAX_STATUS_DURATION.TotalMinutes);
         body["record"]!["embed"]!["external"]!["title"] = JsonValue.Create($"{options.Value.twitchUsername} on Twitch");
-        body["record"]!["embed"]!["external"]!["uri"]   = JsonValue.Create(new UrlBuilder("https", "twitch.tv").Path(options.Value.twitchUsername!.ToLowerInvariant()).ToString());
+        body["record"]!["embed"]!["external"]!["uri"]   = JsonValue.Create(new UrlBuilder("https", "twitch.tv").Path(options.Value.twitchUsername!.ToLowerInvariant(), false).ToString());
 
         try {
-            await Retrier.Attempt(async _ => await blueskyTarget.Path("com.atproto.repo.putRecord").Post<string>(JsonContent.Create(body)), alreadyLiveRetryOptions);
+            await Retrier.Attempt(async _ => await blueskyTarget.Path("com.atproto.repo.putRecord").Post<string>(Entity.Json(body)), alreadyLiveRetryOptions);
             logger.Debug("Live status added to Bluesky");
         } catch (WebApplicationException e) {
             logger.Error("Failed to go live on Bluesky: {status} {err}", e.StatusCode, Encoding.UTF8.GetString(e.ResponseBody!.Value.Span));
-            throw;
         }
     }
 
