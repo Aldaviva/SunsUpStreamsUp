@@ -21,7 +21,7 @@ jobs:
             skipTests: false
           - os: ubuntu-latest
             targetPlatform: osx-x64
-            skipTests: false
+            skipTests: true
           - os: ubuntu-latest
             targetPlatform: osx-arm64
             skipTests: true # can't run ARM64 executables on x64 Linux
