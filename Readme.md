@@ -18,7 +18,7 @@
 - [Open Broadcaster Software Studio ≥ 28](https://obsproject.com/download)
 - [.NET ≥ 10 Runtime x64 or ARM64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 - Operating system
-    - [Linux, x64 or ARM64 or ARM32](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 43 x64)
+    - [Linux, x64 or ARM64 or ARM32](https://learn.microsoft.com/en-us/dotnet/core/install/linux) (tested on Fedora Workstation 44 x64)
     - [Windows ≥ 10 or Server ≥ 2012, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/windows)
     - [Mac OS ≥ 14, x64 or ARM64](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
@@ -46,8 +46,8 @@
 |-|-|-|
 |`latitude`|[−90.0,90.0]|Decimal degrees of your location north (+) or south (−) of the equator, used to determine the local time of sunrise and sunset|
 |`longitude`|(−180.0,180.0]|Decimal degrees of your location east (+) or west (−) of the prime meridian, used to determine the local time of sunrise and sunset|
-|`timeZone`|IANA zone ID|Time zone for your location, from [IANA/Olson tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (*e.g.* `"America/Los_Angeles"`), or omit this to use the computer's local zone|
-|`minimumSunlightLevel`|[`SunlightLevel`](https://github.com/Aldaviva/SolCalc/blob/master/SolCalc/Data/SunlightLevel.cs)|Stream will be up whenever the sunlight is at least this bright; one of `Daylight` (brightest), `CivilTwilight` (default, a little dark), `NauticalTwilight` (medium dark), `AstronomicalTwilight` (very dark), or `Night` (useless: always live, totally dark). For example, if you set this to `CivilTwilight`, the stream will start at civil dawn, continue through sunrise and sunset, and stop at civil dusk.|
+|`timeZone`|IANA zone ID|Time zone for your location, from [IANA/Olson tzdb](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (*e.g.* `"America/Los_Angeles"`), or omit this to use the computer's local time zone|
+|`minimumSunlightLevel`|[`SunlightLevel`](https://github.com/Aldaviva/SolCalc/blob/master/SolCalc/Data/SunlightLevel.cs)|Stream will be up whenever the sunlight is at least this bright; one of `Daylight` (brightest), `CivilTwilight` (default, a little dark), `NauticalTwilight` (medium dark), `AstronomicalTwilight` (very dark), or `Night` (useless: always live, totally dark). For example, if you set this to `CivilTwilight`, the stream will start at civil dawn, continue through sunrise and sunset, and stop when civil twilight ends at civil dusk.|
 
 ### `stream`
 |Name|Values|Description|

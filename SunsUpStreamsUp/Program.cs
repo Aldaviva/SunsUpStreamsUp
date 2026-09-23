@@ -1,7 +1,6 @@
 using NodaTime;
 using RuntimeUpgrade.Notifier;
 using RuntimeUpgrade.Notifier.Data;
-using SunsUpStreamsUp;
 using SunsUpStreamsUp.Logic;
 using SunsUpStreamsUp.Options;
 using Unfucked.DI;
@@ -23,9 +22,9 @@ builder.Services
     .AddHostedService<StreamManagerImpl>(SuperRegistration.Interfaces)
     .AddHostedService<SolarEventEmitterImpl>(SuperRegistration.Interfaces)
     .AddHostedService<BlueskyClient>()
-    .AddSingleton<IClock>(SystemClock.Instance)
-    .AddSingleton<IObsClientFactory, ObsClientFactory>()
-    .AddSingleton<IHttpClient, UnfuckedHttpClient>()
+    .AddSingleton(SystemClock.Instance, SuperRegistration.Interfaces)
+    .AddSingleton<ObsClientFactory>(SuperRegistration.Interfaces)
+    .AddSingleton<UnfuckedHttpClient>(SuperRegistration.Interfaces)
     .AddSingleton<BlueskyAuthFilter>()
     .AddSingleton(TimeProvider.System);
 
@@ -40,6 +39,9 @@ using RuntimeUpgradeNotifier upgradeNotifier = new() {
 try {
     await host.RunAsync();
     return 0;
-} catch (ObsFailedToConnect) {
+} catch (OutOfMemoryException e) {
+    Environment.FailFast(e.Message, e);
+    return 1;
+} catch (Exception) {
     return 1;
 }

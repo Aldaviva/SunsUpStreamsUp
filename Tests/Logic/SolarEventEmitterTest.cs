@@ -10,32 +10,24 @@ namespace Tests.Logic;
 
 public class SolarEventEmitterTest {
 
-    private static readonly DateTimeZone LOS_ANGELES = DateTimeZoneProviders.Tzdb["America/Los_Angeles"];
-    private static readonly DateTimeZone BERLIN      = DateTimeZoneProviders.Tzdb["Europe/Berlin"];
-
-    private static GeographicOptions options = new() { latitude = 37.35, longitude = -121.95, timeZone = LOS_ANGELES.Id, minimumSunlightLevel = SunlightLevel.CivilTwilight };
-
-    private SolarEventEmitterImpl solarEventEmitter = null!;
+    private static readonly DateTimeZone      LOS_ANGELES = DateTimeZoneProviders.Tzdb["America/Los_Angeles"];
+    private static readonly DateTimeZone      BERLIN      = DateTimeZoneProviders.Tzdb["Europe/Berlin"];
+    private static readonly GeographicOptions OPTIONS     = new() { latitude = 37.35, longitude = -121.95, timeZone = LOS_ANGELES.Id, minimumSunlightLevel = SunlightLevel.CivilTwilight };
 
     private readonly IClock                  clock        = A.Fake<IClock>();
     private readonly TimeProvider            timeProvider = A.Fake<TimeProvider>(fakeOptions => fakeOptions.Wrapping(TimeProvider.System));
     private readonly CancellationTokenSource cts          = new();
 
-    public SolarEventEmitterTest() {
-        init();
-    }
-
-    private void init() {
-        solarEventEmitter?.Dispose();
-        solarEventEmitter = new SolarEventEmitterImpl(clock, timeProvider, new OptionsWrapper<GeographicOptions>(options), new NullLogger<SolarEventEmitterImpl>());
-    }
+    private SolarEventEmitterImpl createSolarEventEmitter(GeographicOptions options) =>
+        new(clock, timeProvider, new OptionsWrapper<GeographicOptions>(options), new NullLogger<SolarEventEmitterImpl>());
 
     [Theory]
     [MemberData(nameof(getCurrentSunlightData))]
     public void getCurrentSunlight(ZonedDateTime now, SunlightLevel expected) {
         A.CallTo(() => clock.GetCurrentInstant()).Returns(now.ToInstant());
 
-        SunlightLevel actual = solarEventEmitter.currentSunlight;
+        using SolarEventEmitterImpl solarEventEmitter = createSolarEventEmitter(OPTIONS);
+        SunlightLevel               actual            = solarEventEmitter.currentSunlight;
         actual.Should().Be(expected);
     }
 
@@ -48,14 +40,16 @@ public class SolarEventEmitterTest {
         { new LocalDateTime(2024, 1, 23, 12 + 5, 36).InZoneStrictly(LOS_ANGELES), SunlightLevel.CivilTwilight },
         { new LocalDateTime(2024, 1, 23, 12 + 6, 5).InZoneStrictly(LOS_ANGELES), SunlightLevel.NauticalTwilight },
         { new LocalDateTime(2024, 1, 23, 12 + 6, 36).InZoneStrictly(LOS_ANGELES), SunlightLevel.AstronomicalTwilight },
-        { new LocalDateTime(2024, 1, 23, 12 + 9, 30).InZoneStrictly(LOS_ANGELES), SunlightLevel.Night },
+        { new LocalDateTime(2024, 1, 23, 12 + 9, 30).InZoneStrictly(LOS_ANGELES), SunlightLevel.Night }
     };
 
     [Fact]
     public async Task fireCivilDuskEvent() {
+        using SolarEventEmitterImpl solarEventEmitter = createSolarEventEmitter(OPTIONS);
+
         // 1 minute before civil twilight ends and nautical twilight begins
         ZonedDateTime lastMinuteOfCivilDusk = new LocalDateTime(2024, 1, 23, 12 + 5, 50, 0).InZoneStrictly(LOS_ANGELES);
-        SunlightCalculator.GetSunlightAt(lastMinuteOfCivilDusk, options.latitude, options.longitude).Should().Be(SunlightLevel.CivilTwilight, "precondition");
+        SunlightCalculator.GetSunlightAt(lastMinuteOfCivilDusk, OPTIONS.latitude, OPTIONS.longitude).Should().Be(SunlightLevel.CivilTwilight, "precondition");
 
         A.CallTo(() => clock.GetCurrentInstant()).Returns(lastMinuteOfCivilDusk.ToInstant());
 
@@ -85,12 +79,11 @@ public class SolarEventEmitterTest {
 
     [Fact]
     public async Task fireMultipleDaysOfEvents() {
-        options = options with {
+        using SolarEventEmitterImpl solarEventEmitter = createSolarEventEmitter(OPTIONS with {
             latitude = 78.92,
             longitude = 11.93,
             timeZone = BERLIN.Id
-        };
-        init();
+        });
 
         LocalDate firstDay = new(2024, 9, 9);
         LocalDate lastDay  = new(2024, 9, 11);

@@ -19,16 +19,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
-        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.19.1" />
-        <PackageReference Include="NodaTime" Version="3.3.2" />
-        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.2.0-beta.2" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+        <PackageReference Include="NodaTime" Version="3.3.4" />
+        <PackageReference Include="RuntimeUpgradeNotifier" Version="1.2.0" />
         <PackageReference Include="SolCalc" Version="1.0.2" />
         <PackageReference Include="ThrottleDebounce" Version="3.0.0-beta6" />
-        <PackageReference Include="Unfucked" Version="0.0.1-beta.49" />
+        <PackageReference Include="Unfucked" Version="0.0.1-beta.52" />
         <PackageReference Include="Unfucked.DateTime" Version="0.0.1-beta.6" />
-        <PackageReference Include="Unfucked.DI" Version="0.0.1-beta.18" />
-        <PackageReference Include="Unfucked.HTTP" Version="0.0.1-beta.31" />
+        <PackageReference Include="Unfucked.DI" Version="0.0.1-beta.19" />
+        <PackageReference Include="Unfucked.HTTP" Version="0.0.1-beta.33" />
         <PackageReference Include="Unfucked.OBS" Version="0.0.1-beta.3" />
     </ItemGroup>
 
