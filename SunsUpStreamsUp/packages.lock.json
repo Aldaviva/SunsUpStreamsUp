@@ -76,9 +76,9 @@
       },
       "Unfucked": {
         "type": "Direct",
-        "requested": "[0.0.1-beta.52, )",
-        "resolved": "0.0.1-beta.52",
-        "contentHash": "EbURblbo6xTdgZ/eq/KptTRaEUPVUDIKWVz5ik8Z0MwV6r8VrweT8WBL+91oWniHZ/bOZCvO9ay49L9QA6lMig=="
+        "requested": "[0.0.1-beta.60, )",
+        "resolved": "0.0.1-beta.60",
+        "contentHash": "WPLvhQbSQN3EJxeB/GOFIeC8Z8Dl6iJu5N4SVk3YcNOOj5ZnJNnFA3qQ72/4KjJDarjyrzU3sHD7QyhBr4q7Tg=="
       },
       "Unfucked.DateTime": {
         "type": "Direct",
@@ -100,11 +100,12 @@
       },
       "Unfucked.HTTP": {
         "type": "Direct",
-        "requested": "[0.0.1-beta.33, )",
-        "resolved": "0.0.1-beta.33",
-        "contentHash": "EhS1b26NamzYMzq+hy67jvWYXxm1EM2Bw6zojABZG664UWkOPfg1mz8F13Usm7iDhSvaaGxzAIrpa5Vau/PRRg==",
+        "requested": "[0.0.1-beta.39, )",
+        "resolved": "0.0.1-beta.39",
+        "contentHash": "AeseeCNf2twTxh7WPiFXwcEb0YjEQEVN0XMmRXQJA9nOylU3lXH1ZeMUC+UNnpcJnNyIumptWmg3cnRtlHBaPw==",
         "dependencies": {
-          "Unfucked": "0.0.1-beta.50"
+          "Unfucked": "0.0.1-beta.60",
+          "Unfucked.Caching": "0.0.1-beta.6"
         }
       },
       "Unfucked.OBS": {
@@ -419,6 +420,11 @@
         "dependencies": {
           "System.CodeDom": "10.0.12"
         }
+      },
+      "Unfucked.Caching": {
+        "type": "Transitive",
+        "resolved": "0.0.1-beta.6",
+        "contentHash": "sM29d8zoe+O0Vv6Q5JJmnRgL0u50xJ34zjkZdLB8rayKAo/pFn7xuLHV3hzMHR52BqVQT/GVGGgkp4Xv0cIpOw=="
       }
     },
     "net10.0/linux-arm": {
